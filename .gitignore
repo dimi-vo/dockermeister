@@ -1,4 +1,4 @@
 .idea
 
 sasl/old_secrets/*
-/secrets/*
+sasl-ssl/secrets/*
