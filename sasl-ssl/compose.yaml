@@ -62,7 +62,7 @@ services:
       KAFKA_NODE_ID: 4
       KAFKA_PROCESS_ROLES: "broker"
 
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:SASL_SSL,EXTERNAL:SASL_PLAINTEXT"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:SASL_SSL,EXTERNAL:SASL_SSL"
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller:29092"
       KAFKA_CONTROLLER_LISTENER_NAMES: "INTERNAL"
 
@@ -87,6 +87,11 @@ services:
       KAFKA_SSL_TRUSTSTORE_FILENAME: broker.truststore.jsk
       KAFKA_SSL_TRUSTSTORE_CREDENTIALS: password.txt
       KAFKA_SSL_TRUSTSTORE_PASSWORD: absurd
+      KAFKA_SSL_CLIENT_AUTH: required
+      KAFKA_SSL_KEYSTORE_FILENAME: broker.keystore.jks
+      KAFKA_SSL_KEYSTORE_CREDENTIALS: password.txt
+      KAFKA_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/broker.keystore.jks
+      KAFKA_SSL_KEYSTORE_PASSWORD: absurd
 
       KAFKA_OPTS:
         -Djava.security.auth.login.config=/etc/kafka/jaas/broker_jaas.conf
@@ -100,7 +105,7 @@ services:
     ports:
       - "9021:9021"
     volumes:
-      - ./jaas:/etc/kafka/secrets/
+      - ./secrets:/etc/kafka/secrets/
     environment:
       CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker:9092'
 
@@ -113,9 +118,17 @@ services:
       PORT: 9021
 
       CONTROL_CENTER_STREAMS_SASL_MECHANISM: PLAIN
-      CONTROL_CENTER_STREAMS_SECURITY_PROTOCOL: SASL_PLAINTEXT
+      CONTROL_CENTER_STREAMS_SECURITY_PROTOCOL: SASL_SSL
 
       CONTROL_CENTER_STREAMS_SASL_JAAS_CONFIG:
         org.apache.kafka.common.security.plain.PlainLoginModule required
         username="admin"
         password="admin-secret";
+
+#      CONFLUENT_CONTROLCENTER_REST_LISTENERS: <listener-url>
+#      CONFLUENT_CONTROLCENTER_REST_SSL_KEYSTORE_LOCATION: <keystore-location>
+#      CONFLUENT_CONTROLCENTER_REST_SSL_KEYSTORE_PASSWORD: <password>
+      CONTROL_CENTER_STREAMS_SSL_KEY_PASSWORD: absurd
+      CONTROL_CENTER_STREAMS_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/client.truststore.jks
+      CONTROL_CENTER_STREAMS_SSL_TRUSTSTORE_PASSWORD: absurd
+      CONTROL_CENTER_STREAMS_SSL_TRUSTSTORE_CREDENTIALS: password.txt
