@@ -26,3 +26,13 @@ openssl x509 -req -CA ca-cert -CAkey ca-key -in broker-cert-file -out broker-cer
 ## Import the controller certificate into the ccc (server)
 keytool -keystore broker.keystore.jks -alias CARoot -importcert -file ca-cert
 keytool -keystore broker.keystore.jks -alias broker -importcert -file broker-cert-signed
+
+# CCC <> client
+keytool -keystore ccc.keystore.jks -alias ccc -keyalg RSA -validity 366 -genkey -storepass absurd -keypass absurd -dname "CN=ccc, OU=ou, O=o, L=berlin, C=de" -ext SAN=DNS:localhost
+## Export the ccc's certificate. First step for signing it (server)
+keytool -keystore ccc.keystore.jks -alias ccc -certreq -file ccc-cert-file
+## Sign the certificate
+openssl x509 -req -CA ca-cert -CAkey ca-key -in ccc-cert-file -out ccc-cert-signed -days 366 -CAcreateserial -passin pass:absurd
+## Import the controller certificate into the ccc (server)
+keytool -keystore ccc.keystore.jks -alias CARoot -importcert -file ca-cert
+keytool -keystore ccc.keystore.jks -alias ccc -importcert -file ccc-cert-signed

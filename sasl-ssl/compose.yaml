@@ -104,6 +104,7 @@ services:
       - broker-1
     ports:
       - "9021:9021"
+      - "9022:9022"
     volumes:
       - ./secrets:/etc/kafka/secrets/
     environment:
@@ -125,10 +126,16 @@ services:
         username="admin"
         password="admin-secret";
 
-#      CONFLUENT_CONTROLCENTER_REST_LISTENERS: <listener-url>
-#      CONFLUENT_CONTROLCENTER_REST_SSL_KEYSTORE_LOCATION: <keystore-location>
-#      CONFLUENT_CONTROLCENTER_REST_SSL_KEYSTORE_PASSWORD: <password>
       CONTROL_CENTER_STREAMS_SSL_KEY_PASSWORD: absurd
       CONTROL_CENTER_STREAMS_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/client.truststore.jks
       CONTROL_CENTER_STREAMS_SSL_TRUSTSTORE_PASSWORD: absurd
       CONTROL_CENTER_STREAMS_SSL_TRUSTSTORE_CREDENTIALS: password.txt
+
+
+      CONTROL_CENTER_REST_LISTENERS: https://0.0.0.0:9022
+      CONTROL_CENTER_REST_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/ccc.keystore.jks
+      CONTROL_CENTER_REST_SSL_KEYSTORE_PASSWORD: absurd
+      CONTROL_CENTER_REST_SSL_KEY_PASSWORD: absurd
+      CONTROL_CENTER_REST_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/client.truststore.jks
+      CONTROL_CENTER_REST_SSL_TRUSTSTORE_PASSWORD: absurd
+
