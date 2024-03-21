@@ -1,0 +1,36 @@
+###
+
+POST http://localhost:8083/connectors HTTP/1.1
+content-type: application/json
+
+
+{
+  "name": "ibmmq-source-D",
+  "config": {
+    "connector.class": "io.confluent.connect.ibm.mq.IbmMQSourceConnector",
+    "mq.hostname": "ibmmq",
+    "mq.port": "1414",
+    "mq.transport.type": "client",
+    "mq.queue.manager": "QM1",
+    "mq.channel": "DEV.APP.SVRCONN",
+    "mq.username": "app",
+    "mq.password": "passw0rd",
+    "jms.destination.name": "DEV.QUEUE.1",
+    "jms.destination.type": "queue",
+    "kafka.topic": "ibmmq",
+    "confluent.license": "",
+    "confluent.topic.bootstrap.servers": "broker-1:29092,broker-2:29092,broker-3:29092",
+    "confluent.topic.replication.factor": "1",
+    "tasks.max": "2"
+  }
+}
+
+
+###
+GET http://localhost:8083/connectors 
+
+###
+GET http://localhost:8083/connectors/ibmmq-source-B/status
+
+###
+POST http://localhost:8083/connectors/ibmmq-source-B/restart
