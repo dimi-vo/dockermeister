@@ -11,6 +11,12 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+    ports:
+      - '9101:9101'
+    volumes:
+      - ./prometheus:/opt/prometheus
 
   controller-2:
     image: confluentinc/cp-kafka:7.6.0
@@ -82,8 +88,8 @@ services:
       KAFKA_NODE_ID: 5
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
       KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-2:9092,PLAINTEXT_HOST://broker-2:29092" # Required for brokers
-      KAFKA_JMX_PORT: 9101
-      KAFKA_JMX_HOSTNAME: localhost
+      # KAFKA_JMX_PORT: 9101
+      # KAFKA_JMX_HOSTNAME: localhost
       KAFKA_PROCESS_ROLES: "broker"
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
@@ -105,8 +111,8 @@ services:
       KAFKA_NODE_ID: 6
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
       KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-3:9092,PLAINTEXT_HOST://broker-3:29092" # Required for brokers
-      KAFKA_JMX_PORT: 9101
-      KAFKA_JMX_HOSTNAME: localhost
+      # KAFKA_JMX_PORT: 9101
+      # KAFKA_JMX_HOSTNAME: localhost
       KAFKA_PROCESS_ROLES: "broker"
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
@@ -155,6 +161,8 @@ services:
   kafka-connect:
     image: confluentinc/cp-kafka-connect:latest
     container_name: kafka-connect
+    profiles:
+      - connectors
     depends_on:
       - broker-1
       - broker-2
@@ -181,7 +189,7 @@ services:
       CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components
       CONNECT_CONNECTOR_CLIENT_CONFIG_OVERRIDE_POLICY: All
     volumes:
-      - ./connect-jars:/tmp-jars
+      - ./jars/connect:/tmp-jars
     command:
       - bash
       - -c
@@ -197,13 +205,11 @@ services:
         sleep infinity
 
   postgres:
-    #    container_name: postgres
     image: postgres
     external_links:
       - "4dbfb8027190311990e586ebb73040ead2f5981a81831ddf9099ea35bb5a1fb1"
-    #    hostname: postgres
-    #    ports:
-    #    - "5432:5432"
+    profiles:
+      - connectors
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
@@ -214,6 +220,8 @@ services:
 
   ibmmq:
     image: e9d575a29799
+    profiles:
+      - connectors
     environment:
       LICENSE: accept
       MQ_QMGR_NAME: QM1
@@ -225,6 +233,16 @@ services:
       - "1414:1414"
       - "9443:9443"
     container_name: ibmmq
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - '3000:3000'
+    environment:
+      - "GF_SECURITY_ADMIN_USER=admin"
+      - "GF_SECURITY_ADMIN_PASSWORD=password"
+      - "GF_USERS_ALLOW_SIGN_UP=false"
 
 volumes:
   qm1data:
