@@ -5,7 +5,7 @@ content-type: application/json
 
 
 {
-  "name": "ibmmq-source-D",
+  "name": "ibmmq-source",
   "config": {
     "connector.class": "io.confluent.connect.ibm.mq.IbmMQSourceConnector",
     "mq.hostname": "ibmmq",
@@ -30,7 +30,7 @@ content-type: application/json
 GET http://localhost:8083/connectors 
 
 ###
-GET http://localhost:8083/connectors/ibmmq-source-B/status
+GET http://localhost:8083/connectors/ibmmq-source/status
 
 ###
 POST http://localhost:8083/connectors/ibmmq-source-B/restart

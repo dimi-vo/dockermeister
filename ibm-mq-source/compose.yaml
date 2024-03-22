@@ -13,10 +13,14 @@ services:
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
       KAFKA_JMX_PORT: 9101
       KAFKA_JMX_HOSTNAME: localhost
+      EXTRA_ARGS:
+        -javaagent:/opt/jmx/jmx_prometheus_javaagent-0.20.0.jar=1234:/usr/share/jmx-exporter/kafka_broker.yml
     ports:
       - '9101:9101'
     volumes:
-      - ./prometheus:/opt/prometheus
+      - ./metrics/jmx-exporter:/usr/share/jmx-exporter
+      - ./jars/jmx:/opt/jmx
+    
 
   controller-2:
     image: confluentinc/cp-kafka:7.6.0
@@ -34,7 +38,14 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
-
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      EXTRA_ARGS:
+        -javaagent:/opt/jmx/jmx_prometheus_javaagent-0.20.0.jar=1234:/usr/share/jmx-exporter/kafka_broker.yml
+    volumes:
+      - ./metrics/jmx-exporter:/usr/share/jmx-exporter
+      - ./jars/jmx:/opt/jmx
+  
   controller-3:
     image: confluentinc/cp-kafka:7.6.0
     hostname: controller-3
@@ -52,6 +63,13 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      EXTRA_ARGS:
+        -javaagent:/opt/jmx/jmx_prometheus_javaagent-0.20.0.jar=1234:/usr/share/jmx-exporter/kafka_broker.yml
+    volumes:
+      - ./metrics/jmx-exporter:/usr/share/jmx-exporter
+      - ./jars/jmx:/opt/jmx
 
   broker-1:
     image: confluentinc/cp-kafka:7.6.0
@@ -74,6 +92,13 @@ services:
       KAFKA_LISTENERS: "PLAINTEXT://broker-1:9092,PLAINTEXT_HOST://0.0.0.0:29092"
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      EXTRA_ARGS:
+        -javaagent:/opt/jmx/jmx_prometheus_javaagent-0.20.0.jar=1234:/usr/share/jmx-exporter/kafka_broker.yml
+    volumes:
+      - ./metrics/jmx-exporter:/usr/share/jmx-exporter
+      - ./jars/jmx:/opt/jmx
 
   broker-2:
     image: confluentinc/cp-kafka:7.6.0
@@ -88,14 +113,19 @@ services:
       KAFKA_NODE_ID: 5
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
       KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-2:9092,PLAINTEXT_HOST://broker-2:29092" # Required for brokers
-      # KAFKA_JMX_PORT: 9101
-      # KAFKA_JMX_HOSTNAME: localhost
       KAFKA_PROCESS_ROLES: "broker"
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       KAFKA_LISTENERS: "PLAINTEXT://broker-2:9092,PLAINTEXT_HOST://0.0.0.0:29092"
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      EXTRA_ARGS:
+        -javaagent:/opt/jmx/jmx_prometheus_javaagent-0.20.0.jar=1234:/usr/share/jmx-exporter/kafka_broker.yml
+    volumes:
+      - ./metrics/jmx-exporter:/usr/share/jmx-exporter
+      - ./jars/jmx:/opt/jmx
 
   broker-3:
     image: confluentinc/cp-kafka:7.6.0
@@ -111,8 +141,6 @@ services:
       KAFKA_NODE_ID: 6
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
       KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-3:9092,PLAINTEXT_HOST://broker-3:29092" # Required for brokers
-      # KAFKA_JMX_PORT: 9101
-      # KAFKA_JMX_HOSTNAME: localhost
       KAFKA_PROCESS_ROLES: "broker"
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:29092,2@controller-2:29092,3@controller-3:29092"
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
@@ -120,6 +148,13 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      EXTRA_ARGS:
+        -javaagent:/opt/jmx/jmx_prometheus_javaagent-0.20.0.jar=1234:/usr/share/jmx-exporter/kafka_broker.yml
+    volumes:
+      - ./metrics/jmx-exporter:/usr/share/jmx-exporter
+      - ./jars/jmx:/opt/jmx
 
   control-center:
     image: confluentinc/cp-enterprise-control-center:7.6.0
@@ -161,8 +196,7 @@ services:
   kafka-connect:
     image: confluentinc/cp-kafka-connect:latest
     container_name: kafka-connect
-    profiles:
-      - connectors
+    hostname: kafka-connect
     depends_on:
       - broker-1
       - broker-2
@@ -188,7 +222,13 @@ services:
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
       CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components
       CONNECT_CONNECTOR_CLIENT_CONFIG_OVERRIDE_POLICY: All
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      EXTRA_ARGS:
+        -javaagent:/opt/jmx/jmx_prometheus_javaagent-0.20.0.jar=1234:/usr/share/jmx-exporter/kafka_connect.yml
     volumes:
+      - ./jars/jmx:/opt/jmx
+      - ./metrics/jmx-exporter:/usr/share/jmx-exporter
       - ./jars/connect:/tmp-jars
     command:
       - bash
@@ -214,9 +254,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: postgres
-  #  #    PGDATA: /var/lib/postgresql/data/pgdata
-  #    volumes:
-  #    - ./postgres-setup.sql:/postgres-setup.sql
 
   ibmmq:
     image: e9d575a29799
@@ -234,15 +271,34 @@ services:
       - "9443:9443"
     container_name: ibmmq
 
+  prometheus:
+    depends_on:
+      - controller-1
+      - controller-2
+      - controller-3
+      - broker-1
+      - broker-2
+      - broker-3
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./metrics/prometheus:/etc/prometheus
+
   grafana:
     image: grafana/grafana
     container_name: grafana
+    depends_on:
+      - prometheus
     ports:
       - '3000:3000'
     environment:
       - "GF_SECURITY_ADMIN_USER=admin"
       - "GF_SECURITY_ADMIN_PASSWORD=password"
       - "GF_USERS_ALLOW_SIGN_UP=false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
 
 volumes:
   qm1data:
