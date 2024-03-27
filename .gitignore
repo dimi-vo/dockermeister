@@ -1,3 +1,5 @@
 .idea
 
-sasl/secrets/*
+*/secrets/**
+
+**/ibm-mq-source-w-monitoring/mq-container/
