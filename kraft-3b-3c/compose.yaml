@@ -1,9 +1,7 @@
 version: "3"
 services:
   controller-1:
-    image: confluentinc/cp-kafka:7.6.0
-    profiles:
-      - controllers
+    image: confluentinc/cp-server:7.6.0
     hostname: controller-1
     container_name: controller-1
     environment:
@@ -17,9 +15,7 @@ services:
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
 
   controller-2:
-    image: confluentinc/cp-kafka:7.6.0
-    profiles:
-      - controllers
+    image: confluentinc/cp-server:7.6.0
     hostname: controller-2
     container_name: controller-2
     depends_on:
@@ -36,9 +32,7 @@ services:
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
 
   controller-3:
-    image: confluentinc/cp-kafka:7.6.0
-    profiles:
-      - controllers
+    image: confluentinc/cp-server:7.6.0
     hostname: controller-3
     container_name: controller-3
     depends_on:
@@ -55,8 +49,7 @@ services:
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
 
   broker-1:
-    image: confluentinc/cp-kafka:7.6.0
-    profiles: ["brokers"]
+    image: confluentinc/cp-server:7.6.0
     hostname: broker-1
     container_name: broker-1
     depends_on:
@@ -74,10 +67,11 @@ services:
       KAFKA_LISTENERS: "PLAINTEXT://broker-1:9092,PLAINTEXT_HOST://0.0.0.0:29092"
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+      KAFKA_METRICS_REPORTER: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker-1:9092,broker-2:9092,broker-3:9092
   
   broker-2:
-    image: confluentinc/cp-kafka:7.6.0
-    profiles: ["brokers"]
+    image: confluentinc/cp-server:7.6.0
     hostname: broker-2
     depends_on:
       - broker-1
@@ -97,10 +91,11 @@ services:
       KAFKA_LISTENERS: "PLAINTEXT://broker-2:9092,PLAINTEXT_HOST://0.0.0.0:29092"
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+      KAFKA_METRICS_REPORTER: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker-1:9092,broker-2:9092,broker-3:9092
 
   broker-3:
-    image: confluentinc/cp-kafka:7.6.0
-    profiles: ["brokers"]
+    image: confluentinc/cp-server:7.6.0
     hostname: broker-3
     depends_on:
       - broker-2
@@ -121,3 +116,5 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+      KAFKA_METRICS_REPORTER: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker-1:9092,broker-2:9092,broker-3:9092
