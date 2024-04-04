@@ -1,0 +1,95 @@
+version: '3'
+services:
+  controller:
+    image: confluentinc/cp-server:7.6.0
+    hostname: controller
+    container_name: controller-ldap
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: "controller"
+
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller:29092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "INTERNAL"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+      KAFKA_LISTENERS: "INTERNAL://controller:29092"
+
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_TIER_METADATA_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+  broker:
+    image: confluentinc/cp-server:7.6.0
+    hostname: broker
+    container_name: broker-ldap
+    depends_on:
+      - controller
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_NODE_ID: 2
+      KAFKA_PROCESS_ROLES: "broker"
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:SASL_PLAINTEXT"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller:29092"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "INTERNAL"
+
+      KAFKA_LISTENERS: "EXTERNAL://:9092"
+      KAFKA_ADVERTISED_LISTENERS: "EXTERNAL://broker:9092"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "EXTERNAL"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_TIER_METADATA_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+      KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+
+      KAFKA_LDAP_JAVA_NAMING_PROVIDER_URL: ldap://ldap
+      KAFKA_LDAP_USER_PASSWORD_ATTRIBUTE: ''
+      KAFKA_LISTENER_NAME_EXTERNAL_SASL_ENABLED_MECHANISMS: PLAIN
+      KAFKA_LISTENER_NAME_EXTERNAL_PLAIN_SASL_JAAS_CONFIG: org.apache.kafka.common.security.plain.PlainLoginModule required;
+
+      KAFKA_LISTENER_NAME_EXTERNAL_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS: io.confluent.security.auth.provider.ldap.LdapAuthenticateCallbackHandler
+
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:latest
+    hostname: control-center
+    container_name: control-center
+    depends_on:
+      - broker
+    ports:
+      - "9021:9021"
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker:9092'
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      PORT: 9021
+
+  client:
+    image: vdimi/ubuntu
+    container_name: producer
+    depends_on: 
+      - broker
+    volumes:
+      - /Users/dimi/my/learning/confluent/javameister/target:/home/producer
+
+  ldap:
+    image: osixia/openldap:1.5.0
+    container_name: ldap
+    ports:
+      - '389:389'
+      - '636:636'
+    environment:
+      LDAP_ORGANISATION: "Company"
+      LDAP_DOMAIN: "company.com"
+      LDAP_ADMIN_PASSWORD: "password"
+      LDAP_BASE_DN: "dc=company,dc=com"
+    volumes:
+      - ./ldap-records:/home/dimi

@@ -1,0 +1,4 @@
+dn: uid=client,ou=people,dc=company,dc=com
+userPassword: client-secret
+changetype: add
+objectClass: inetOrgPerson

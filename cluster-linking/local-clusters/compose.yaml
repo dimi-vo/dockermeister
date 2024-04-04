@@ -72,7 +72,6 @@ services:
       DEFAULT_REPLICATION_FACTOR: 1
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
 
-
   broker-B-1:
     image: confluentinc/cp-server:7.6.0
     hostname: broker-B-1
