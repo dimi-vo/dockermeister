@@ -18,10 +18,10 @@ kafka-console-producer --topic demo --bootstrap-server broker-A-1:9092
 kafka-console-consumer --topic demo --from-beginning --bootstrap-server broker-A-1:9092
 
 # Create the link
-kafka-cluster-links --bootstrap-server broker-B-1:9093 --create --link demo-link --config bootstrap.servers=broker-A-1:9092
+kafka-cluster-links --bootstrap-server broker-dest:9093 --create --link demo-link --config bootstrap.servers=broker-source:9092
 
-# Initialize the mirror topic
-kafka-mirrors --create --mirror-topic demo --link demo-link --bootstrap-server broker-B-1:9093
+# Create the mirror topic
+kafka-mirrors --create --mirror-topic demo --link demo-link --bootstrap-server broker-dest:9093
 
 # Consumer from the mirror topic
 kafka-console-consumer --topic demo --from-beginning --bootstrap-server broker-B-1:9093

@@ -1,0 +1,31 @@
+### Create
+POST http://localhost:8083/connectors HTTP/1.1
+content-type: application/json
+
+{
+  "name": "ReplicatorSource",
+  "config": {
+    "connector.class": "io.confluent.connect.replicator.ReplicatorSourceConnector",
+    "tasks.max": "6",
+    "topic.whitelist": "demo-topic",
+    "src.kafka.bootstrap.servers": "broker-A-1:9092",
+    "dest.kafka.bootstrap.servers": "broker-B-1:9092",
+    "key.converter":"io.confluent.connect.replicator.util.ByteArrayConverter",
+    "value.converter":"io.confluent.connect.replicator.util.ByteArrayConverter"
+  }
+}
+
+###
+DELETE http://localhost:8083/connectors/ReplicatorSource
+
+### 
+GET http://localhost:8083/connectors?expand=info&expand=status
+
+### get status of connector
+GET http://localhost:8083/connectors/ReplicatorSource/status
+
+### restart
+POST http://localhost:8083/connectors/ReplicatorSource/restart
+
+
+ 
