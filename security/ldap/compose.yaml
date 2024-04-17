@@ -18,6 +18,7 @@ services:
       KAFKA_CONFLUENT_TIER_METADATA_REPLICATION_FACTOR: 1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      # KAFKA_AUTHORIZER_CLASS_NAME: io.confluent.kafka.security.authorizer.ConfluentServerAuthorizer
 
   broker:
     image: confluentinc/cp-server:7.6.0
@@ -32,12 +33,12 @@ services:
       KAFKA_NODE_ID: 2
       KAFKA_PROCESS_ROLES: "broker"
 
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:SASL_PLAINTEXT"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,LDAP:SASL_PLAINTEXT"
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller:29092"
       KAFKA_CONTROLLER_LISTENER_NAMES: "INTERNAL"
 
-      KAFKA_LISTENERS: "EXTERNAL://:9092"
-      KAFKA_ADVERTISED_LISTENERS: "EXTERNAL://broker:9092"
+      KAFKA_LISTENERS: "EXTERNAL://:9092,LDAP://:9093"
+      KAFKA_ADVERTISED_LISTENERS: "EXTERNAL://broker:9092,LDAP://localhost:9093"
       KAFKA_INTER_BROKER_LISTENER_NAME: "EXTERNAL"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
 
@@ -46,20 +47,48 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
 
-      KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
-      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+      KAFKA_SASL_ENABLED_MECHANISMS: SCRAM-SHA-256
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: SCRAM-SHA-256
 
-      KAFKA_LDAP_JAVA_NAMING_PROVIDER_URL: ldap://ldap
-      KAFKA_LDAP_USER_PASSWORD_ATTRIBUTE: ''
-      KAFKA_LISTENER_NAME_EXTERNAL_SASL_ENABLED_MECHANISMS: PLAIN
-      KAFKA_LISTENER_NAME_EXTERNAL_PLAIN_SASL_JAAS_CONFIG: org.apache.kafka.common.security.plain.PlainLoginModule required;
+      # KAFKA_LDAP_JAVA_NAMING_PROVIDER_URL: ldap://ldap
+      # KAFKA_LDAP_USER_PASSWORD_ATTRIBUTE: ''
+      KAFKA_LISTENER_NAME_LDAP_SCRAM-SHA-256_SASL_JAAS_CONFIG: org.apache.kafka.common.security.scram.ScramLoginModule required \
+        username="kafka" \
+        password="kafka-secret";
 
-      KAFKA_LISTENER_NAME_EXTERNAL_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS: io.confluent.security.auth.provider.ldap.LdapAuthenticateCallbackHandler
+      # KAFKA_LISTENER_NAME_EXTERNAL_PLAIN_SASL_SERVER_CALLBACK_HANDLER_CLASS: io.confluent.security.auth.provider.ldap.LdapAuthenticateCallbackHandler
+      # KAFKA_AUTHORIZER_CLASS_NAME: io.confluent.kafka.security.authorizer.ConfluentServerAuthorizer
+
+      # Activate the plugin
+      KAFKA_AUTHORIZER_CLASS_NAME: io.confluent.kafka.security.authorizer.ConfluentServerAuthorizer
+      # Set the Kafka broker as a super user
+      KAFKA_SUPER_USERS: User:kafka
+
+      # Provide the LDAP provider URL
+      KAFKA_LDAP_JAVA_NAMING_PROVIDER_URL: ldap://openldap:389/DC=example,DC=com
+      # Specify the LDAP security authentication protocol
+      KAFKA_LDAP_JAVA_NAMING_SECURITY_AUTHENTICATION: SIMPLE
+      # Identify the principal for the LDAP context
+      KAFKA_LDAP_JAVA_NAMING_SECURITY_PRINCIPAL: cn=admin,dc=example,dc=com
+      KAFKA_LDAP_JAVA_NAMING_SECURITY_CREDENTIALS: broker-secret
+      # Specify the search base for group-based search
+      KAFKA_LDAP_GROUP_SEARCH_BASE: ou=Groups,dc=example,dc=com
+      # Specify the object class for groups
+      KAFKA_LDAP_GROUP_OBJECT_CLASS: groupOfNames
+      # Specify the attribute name from which the group name used in ACLs is obtained
+      KAFKA_LDAP_GROUP_NAME_ATTRIBUTE: cn
+      # Specify the regex pattern to obtain the group name used in ACLs from the attribute ldap.authorizer.group.name.attribute
+      KAFKA_LDAP_GROUP_NAME_ATTRIBUTE_PATTERN: (Kafka.*)
+      # Specify the attribute name from which group members (user principals) are obtained
+      KAFKA_LDAP_GROUP_MEMBER_ATTRIBUTE: member
+      # Specify the regex pattern to obtain the user principal from the group member attribute
+      KAFKA_LDAP_GROUP_MEMBER_ATTRIBUTE_PATTERN: cn=(.*),ou=People,dc=example,dc=com
+
 
   control-center:
     image: confluentinc/cp-enterprise-control-center:latest
     hostname: control-center
-    container_name: control-center
+    container_name: control-center-ldap
     depends_on:
       - broker
     ports:
@@ -83,13 +112,14 @@ services:
   ldap:
     image: osixia/openldap:1.5.0
     container_name: ldap
+    hostname: openldap
     ports:
       - '389:389'
       - '636:636'
     environment:
-      LDAP_ORGANISATION: "Company"
-      LDAP_DOMAIN: "company.com"
+      LDAP_ORGANISATION: "Example"
+      LDAP_DOMAIN: "example.com"
       LDAP_ADMIN_PASSWORD: "password"
-      LDAP_BASE_DN: "dc=company,dc=com"
+      LDAP_BASE_DN: "dc=example,dc=com"
     volumes:
       - ./ldap-records:/home/dimi

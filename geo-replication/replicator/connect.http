@@ -11,7 +11,8 @@ content-type: application/json
     "src.kafka.bootstrap.servers": "broker-A-1:9092",
     "dest.kafka.bootstrap.servers": "broker-B-1:9092",
     "key.converter":"io.confluent.connect.replicator.util.ByteArrayConverter",
-    "value.converter":"io.confluent.connect.replicator.util.ByteArrayConverter"
+    "value.converter":"io.confluent.connect.replicator.util.ByteArrayConverter",
+    "topic.rename.format": "mirror_of_${topic}"
   }
 }
 

@@ -87,7 +87,7 @@ services:
 
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
 
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-B-1:9092,PLAINTEXT_HOST://localhost:39092" # Required for brokers
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-B-1:9092,PLAINTEXT_HOST://localhost:39092"
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-B-1:29092"
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       KAFKA_LISTENERS: "PLAINTEXT://broker-B-1:9092,PLAINTEXT_HOST://0.0.0.0:39092"
@@ -101,11 +101,13 @@ services:
 
       CONFLUENT_CLUSTER_LINK_ENABLE: "true"
       CONFLUENT_CLUSTER_LINK_METADATA_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - ./config:/home/user
 
   control-center:
     image: confluentinc/cp-enterprise-control-center:latest
     hostname: control-center
-    container_name: control-center
+    container_name: control-center-cl
     depends_on:
       - broker-A-1
       - broker-B-1
@@ -114,12 +116,6 @@ services:
     environment:
       CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker-A-1:9092'
       CONTROL_CENTER_KAFKA_DESTINATION-CLUSTER_BOOTSTRAP_SERVERS: 'broker-B-1:9092'
-
-      #      CONTROL_CENTER_CONNECT_CONNECT-DEFAULT_CLUSTER: 'connect:8083'
-      # CONTROL_CENTER_CONNECT_HEALTHCHECK_ENDPOINT: '/connectors'
-      #      CONTROL_CENTER_KSQL_KSQLDB1_URL: "http://ksqldb-server:8088"
-      #      CONTROL_CENTER_KSQL_KSQLDB1_ADVERTISED_URL: "http://localhost:8088"
-      #      CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
       CONTROL_CENTER_REPLICATION_FACTOR: 1
       CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1

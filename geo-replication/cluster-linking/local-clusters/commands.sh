@@ -18,12 +18,28 @@ kafka-console-producer --topic demo --bootstrap-server broker-A-1:9092
 kafka-console-consumer --topic demo --from-beginning --bootstrap-server broker-A-1:9092
 
 # Create the link
-kafka-cluster-links --bootstrap-server broker-dest:9093 --create --link demo-link --config bootstrap.servers=broker-source:9092
-
+kafka-cluster-links --bootstrap-server broker-B-1:9092 --create --link demo-link --config topic.config.sync.include=max.message.bytes,cleanup.policy,message.timestamp.type,message.timestamp.difference.max.ms,min.compaction.lag.ms,max.compaction.lag.ms bootstrap.servers=broker-A-1:9092
+kafka-cluster-links --bootstrap-server broker-B-1:9092 --create --link demo-link --config topic.config.sync.include=max.message.bytes bootstrap.servers=broker-A-1:9092
+kafka-cluster-links --bootstrap-server broker-B-1:9092 --create --link demo-link --config-file link.config
 # Create the mirror topic
-kafka-mirrors --create --mirror-topic demo --link demo-link --bootstrap-server broker-dest:9093
+kafka-mirrors --create --mirror-topic dummy --link demo-link --bootstrap-server broker-B-1:9092 --config retention.ms=60000
+
+# Describe the link
+kafka-configs --bootstrap-server broker-B-1:9092 \
+                  --describe \
+                  --cluster-link demo-link
+
+
+# Delete the mirror topic
+kafka-topics --bootstrap-server broker-B-1:9092 --delete --topic dummy
+# Delete the link
+kafka-cluster-links --bootstrap-server broker-B-1:9092 --delete --link demo-link
+
 
 # Consumer from the mirror topic
 kafka-console-consumer --topic demo --from-beginning --bootstrap-server broker-B-1:9093
 
 # See here for more details https://docs.confluent.io/platform/current/multi-dc-deployments/cluster-linking/topic-data-sharing.html#delete-the-link
+
+
+topic.config.sync.include=max.message.bytes,message.timestamp.type,message.timestamp.difference.max.ms,min.compaction.lag.ms,max.compaction.lag.ms

@@ -1,4 +1,22 @@
-dn: uid=client,ou=people,dc=company,dc=com
-userPassword: client-secret
-changetype: add
+# define our concept of Users in the "domain" example.com
+dn: ou=users,dc=example,dc=com
+objectClass: organizationalUnit
+ou: users
+
+# define our concept of Groups in the "domain" example.com
+dn: ou=groups,dc=example,dc=com
+objectClass: organizationalUnit
+ou: groups
+
+# Define user "alice"
+dn: uid=alice,ou=users,dc=example,dc=com
 objectClass: inetOrgPerson
+cn: alice
+sn: alice
+userPassword: alice
+
+# create "roleA" and make alice part of it
+dn: cn=roleA,ou=groups,dc=example,dc=com
+objectClass: groupOfNames
+cn: roleA
+member: uid=alice,ou=users,dc=example,dc=com
