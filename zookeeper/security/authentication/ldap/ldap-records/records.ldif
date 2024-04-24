@@ -1,0 +1,23 @@
+# define our concept of Users in the "domain" example.com
+dn: ou=Kafka Developers,dc=example,dc=com
+objectClass: organizationalUnit
+ou: Users
+
+# define our concept of Users in the "domain" example.com
+dn: ou=people,dc=example,dc=com
+objectClass: organizationalUnit
+ou: Users
+
+# Define user "alice"
+dn: uid=alice,ou=Kafka Developers,dc=example,dc=com
+objectClass: inetOrgPerson
+cn: alice
+sn: alice
+userPassword: alice
+
+# Define user that will be used by client applications
+dn: uid=client,ou=people,dc=example,dc=com
+objectClass: inetOrgPerson
+userPassword: client-secret
+sn: client
+cn: client
