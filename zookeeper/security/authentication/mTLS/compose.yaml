@@ -1,0 +1,81 @@
+version: "3"
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    hostname: zookeeper-mlts
+    ports:
+      - "2181:2181"
+      - "2182:2182"
+    volumes:
+      - ./secrets:/etc/kafka/secrets/
+    environment:
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SECURE_CLIENT_PORT: 2182
+      ZOOKEEPER_SERVER_CNXN_FACTORY: org.apache.zookeeper.server.NettyServerCnxnFactory
+      ZOOKEEPER_AUTH_PROVIDER_X509: org.apache.zookeeper.server.auth.X509AuthenticationProvider
+      ZOOKEEPER_SSL_KEY_STORE_LOCATION: /etc/kafka/secrets/zookeeper.keystore.jks # <path-to-zookeeper-keystore>
+      ZOOKEEPER_SSL_KEY_STORE_PASSWORD: qaqaqa  #<zookeeper-keystore-password>
+      ZOOKEEPER_SSL_TRUST_STORE_LOCATION: /etc/kafka/secrets/zookeeper.truststore.jks  #<path-to-zookeeper-truststore>
+      ZOOKEEPER_SSL_TRUST_STORE_PASSWORD: qaqaqa  #<zookeeper-truststore-password>
+      ZOOKEEPER_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/zookeeper.keystore.jks # <path-to-zookeeper-keystore>
+      ZOOKEEPER_SSL_KEYSTORE_PASSWORD: qaqaqa  #<zookeeper-keystore-password>
+      ZOOKEEPER_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/zookeeper.truststore.jks  #<path-to-zookeeper-truststore>
+      ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD: qaqaqa  #<zookeeper-truststore-password>
+
+  broker:
+    image: confluentinc/cp-server:7.5.0
+    hostname: broker
+    container_name: broker-mlts-zk
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9094:9094"
+    volumes:
+      - ./secrets:/etc/kafka/secrets/
+    environment:
+      KAFKA_NODE_ID: 4
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2182'
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "EXTERNAL:SSL"
+      KAFKA_LISTENERS: "EXTERNAL://:9094"
+      KAFKA_ADVERTISED_LISTENERS: "EXTERNAL://broker:9094"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "EXTERNAL"
+
+
+      # Required to use TLS to ZooKeeper (default is false)
+      KAFKA_ZOOKEEPER_SSL_CLIENT_ENABLE: true
+      KAFKA_ZOOKEEPER_CLIENT_CNXN_SOCKET: org.apache.zookeeper.ClientCnxnSocketNetty
+      KAFKA_ZOOKEEPER_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/broker.keystore.jks
+      KAFKA_ZOOKEEPER_SSL_KEYSTORE_PASSWORD: qaqaqa
+      KAFKA_ZOOKEEPER_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/broker.truststore.jks
+      KAFKA_ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD: qaqaqa
+      ZOOKEEPER_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/zookeeper.keystore.jks
+      ZOOKEEPER_SSL_KEYSTORE_PASSWORD: qaqaqa
+      ZOOKEEPER_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/zookeeper.truststore.jks
+      ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD: qaqaqa
+
+      KAFKA_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/broker.truststore.jks
+      KAFKA_SSL_TRUSTSTORE_FILENAME: broker.truststore.jsk
+      KAFKA_SSL_TRUSTSTORE_CREDENTIALS: password.txt
+      KAFKA_SSL_TRUSTSTORE_PASSWORD: qaqaqa
+      KAFKA_SSL_CLIENT_AUTH: required
+      KAFKA_SSL_KEYSTORE_FILENAME: broker.keystore.jks
+      KAFKA_SSL_KEYSTORE_CREDENTIALS: password.txt
+      KAFKA_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/broker.keystore.jks
+      KAFKA_SSL_KEYSTORE_PASSWORD: qaqaqa
+
+
+      # Replication factors
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      CONFLUENT_TIER_METADATA_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_TIER_METADATA_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      CONFLUENT_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_TOPIC_REPLICATION_FACTOR: 1
+      CONFLUENT_CLUSTER_LINK_METADATA_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_CLUSTER_LINK_METADATA_TOPIC_REPLICATION_FACTOR: 1
+
