@@ -14,10 +14,7 @@ services:
       ZOOKEEPER_SECURE_CLIENT_PORT: 2182
       ZOOKEEPER_SERVER_CNXN_FACTORY: org.apache.zookeeper.server.NettyServerCnxnFactory
       ZOOKEEPER_AUTH_PROVIDER_X509: org.apache.zookeeper.server.auth.X509AuthenticationProvider
-      ZOOKEEPER_SSL_KEY_STORE_LOCATION: /etc/kafka/secrets/zookeeper.keystore.jks # <path-to-zookeeper-keystore>
-      ZOOKEEPER_SSL_KEY_STORE_PASSWORD: qaqaqa  #<zookeeper-keystore-password>
-      ZOOKEEPER_SSL_TRUST_STORE_LOCATION: /etc/kafka/secrets/zookeeper.truststore.jks  #<path-to-zookeeper-truststore>
-      ZOOKEEPER_SSL_TRUST_STORE_PASSWORD: qaqaqa  #<zookeeper-truststore-password>
+
       ZOOKEEPER_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/zookeeper.keystore.jks # <path-to-zookeeper-keystore>
       ZOOKEEPER_SSL_KEYSTORE_PASSWORD: qaqaqa  #<zookeeper-keystore-password>
       ZOOKEEPER_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/zookeeper.truststore.jks  #<path-to-zookeeper-truststore>
@@ -66,7 +63,6 @@ services:
       KAFKA_SSL_KEYSTORE_CREDENTIALS: password.txt
       KAFKA_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/broker.keystore.jks
       KAFKA_SSL_KEYSTORE_PASSWORD: qaqaqa
-
 
       # Replication factors
       KAFKA_DEFAULT_REPLICATION_FACTOR: 1
