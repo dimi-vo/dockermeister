@@ -1,5 +1,0 @@
-kafka-configs --bootstrap-server broker:9092 --alter --add-config 'SCRAM-SHA-256=[password=admin-secret],SCRAM-SHA-512=[password=admin-secret]' --entity-type users --entity-name admin
-
-
-
-
