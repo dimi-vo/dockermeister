@@ -12,18 +12,6 @@ The `compose.yaml` file will spin up two clusters, one broker and one controller
 # Start the containers
 docker compose up -d
 
-docker exec -it broker-B-1 /bin/bash
-
-# Edit the configuration of the destination broker to enable the Cluster Linking feature
-echo "confluent.cluster.link.metadata.topic.replication.factor=1" >> /etc/kafka/kraft/broker.properties
-
-sed -i '' -e "s/confluent.cluster.link.enable=false/confluent.cluster.link.enable=true/g" /etc/kafka/kraft/broker.properties
-
-/bin/krafka-server-stop
-
-# Restart the broker
-docker compose up -d
-
 docker exec -it broker-A-1 /bin/bash
 # Create some dummy data
 kafka-topics --create --topic dummy --bootstrap-server broker-A-1:9092
@@ -38,6 +26,8 @@ kafka-console-producer --topic dummy --bootstrap-server broker-A-1:9092
 
 docker exec -it broker-B-1 /bin/bash
 
+cd /home/user
+
 # Create the link and pass the link.config file
 kafka-cluster-links --bootstrap-server broker-B-1:9092 --create --link demo-link --config-file link.config
 
@@ -45,7 +35,7 @@ kafka-cluster-links --bootstrap-server broker-B-1:9092 --create --link demo-link
 kafka-mirrors --create --mirror-topic dummy --link demo-link --bootstrap-server broker-B-1:9092 --config retention.ms=600000
 
 # Consume the mirror topic
-kafka-console-consumer --topic demo --from-beginning --bootstrap-server broker-B-1:9093
+kafka-console-consumer --topic dummy --from-beginning --bootstrap-server broker-B-1:9092
 
 ###
 # Cleanup

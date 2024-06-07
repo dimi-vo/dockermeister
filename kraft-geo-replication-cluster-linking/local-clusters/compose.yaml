@@ -20,6 +20,15 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       DEFAULT_REPLICATION_FACTOR: 1
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      EXTRA_ARGS:
+        -javaagent:/opt/jmx/jmx_prometheus_javaagent-0.20.0.jar=1234:/usr/share/jmx-exporter/kafka_broker.yml
+    ports:
+      - '9101:9101'
+    volumes:
+      - ./metrics/jmx-exporter:/usr/share/jmx-exporter
+      - ./jars/jmx:/opt/jmx
       
   broker-A-1:
     image: confluentinc/cp-kafka:7.6.0
@@ -29,7 +38,7 @@ services:
       - controller-A-1
     ports:
       - "9095:9092"
-      - "9104:9101"
+      - "9102:9101"
     environment:
       KAFKA_NODE_ID: 4
       KAFKA_KRAFT_NODE_ID: 4
@@ -50,6 +59,13 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       DEFAULT_REPLICATION_FACTOR: 1
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      EXTRA_ARGS:
+        -javaagent:/opt/jmx/jmx_prometheus_javaagent-0.20.0.jar=1234:/usr/share/jmx-exporter/kafka_broker.yml
+    volumes:
+      - ./metrics/jmx-exporter:/usr/share/jmx-exporter
+      - ./jars/jmx:/opt/jmx
 
   controller-B-1:
     image: confluentinc/cp-server:7.6.0
@@ -71,6 +87,15 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       DEFAULT_REPLICATION_FACTOR: 1
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      EXTRA_ARGS:
+        -javaagent:/opt/jmx/jmx_prometheus_javaagent-0.20.0.jar=1234:/usr/share/jmx-exporter/kafka_broker.yml
+    ports:
+      - '9201:9101'
+    volumes:
+      - ./metrics/jmx-exporter:/usr/share/jmx-exporter
+      - ./jars/jmx:/opt/jmx
 
   broker-B-1:
     image: confluentinc/cp-server:7.6.0
@@ -80,7 +105,7 @@ services:
       - controller-B-1
     ports:
       - "19095:9092"
-      - "19104:9101"
+      - '9202:9101'
     environment:
       KAFKA_NODE_ID: 4
       KAFKA_PROCESS_ROLES: "broker"
@@ -101,7 +126,13 @@ services:
 
       CONFLUENT_CLUSTER_LINK_ENABLE: "true"
       CONFLUENT_CLUSTER_LINK_METADATA_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      EXTRA_ARGS:
+        -javaagent:/opt/jmx/jmx_prometheus_javaagent-0.20.0.jar=1234:/usr/share/jmx-exporter/kafka_broker.yml
     volumes:
+      - ./metrics/jmx-exporter:/usr/share/jmx-exporter
+      - ./jars/jmx:/opt/jmx
       - ./config:/home/user
 
   control-center:
@@ -121,3 +152,30 @@ services:
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
       CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       PORT: 9021
+
+  prometheus:
+    depends_on:
+      - controller-A-1
+      - broker-A-1
+      - controller-B-1
+      - broker-B-1
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./metrics/prometheus:/etc/prometheus
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    depends_on:
+      - prometheus
+    ports:
+      - '3000:3000'
+    environment:
+      - "GF_SECURITY_ADMIN_USER=admin"
+      - "GF_SECURITY_ADMIN_PASSWORD=password"
+      - "GF_USERS_ALLOW_SIGN_UP=false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
