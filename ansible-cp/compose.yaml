@@ -1,0 +1,7 @@
+services:
+  node:
+    image: vdimi/ubuntu-for-kafka:0.1.0
+    stdin_open: true
+    tty: true
+    ports:
+      - '2222:22'
