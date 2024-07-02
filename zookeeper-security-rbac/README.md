@@ -2,74 +2,7 @@
 
 ## Start OpenLDAP
 
-```bash
-ldapmodify -x -D "cn=admin,dc=example,dc=com" -w password -H ldap://localhost -a -f records.ldif
-
-ldapsearch -H ldap://localhost -x -D "cn=admin,dc=example,dc=com" -w password -b "dc=example,dc=com" -LLL
-```
-
 ```shell
-kafka-configs --bootstrap-server broker:29092 --alter --add-config 'SCRAM-SHA-256=[iterations=8192,password=kafka-secret]' --entity-type users --entity-name kafka
-kafka-configs --bootstrap-server broker:29092 --alter --add-config 'SCRAM-SHA-256=[iterations=8192,password=alice-secret]' --entity-type users --entity-name alice
-
-kafka-configs --bootstrap-server broker:9093 --alter --add-config 'SCRAM-SHA-256=[iterations=8192,password=password]' --entity-type users --entity-name kafka
-kafka-configs --bootstrap-server broker:9093 --alter --add-config 'SCRAM-SHA-256=[iterations=8192,password=alice]' --entity-type users --entity-name alice
-kafka-configs --bootstrap-server broker:9093 --describe --entity-type users --all
-
-kafka-acls --bootstrap-server broker:9093 --add --cluster --operation=All --allow-principal=User:kafka
-
-
-
-
-
-
-
-
-kafka-acls --authorizer-properties zookeeper.connect=localhost:2181 --add --cluster --operation=All --allow-principal=User:kafka
-
-export KAFKA_OPTS="-Djava.security.krb5.kdc=LDAPSERVER.EXAMPLE.COM -Djava.security.krb5.realm=EXAMPLE.COM"
-kafka-server-start etc/kafka/server.properties > /tmp/kafka.log 2>&1 &
-
-###############################################################################################
-###############################################################################################
-###############################################################################################
-
-mkdir ./ldap/ldap_certs
-
-cd ldap/ldap_certs
-
-echo "LDAPS: Creating a Root Certificate Authority (CA)"
-openssl req -new -x509 -days 365 -nodes -out ca.crt -keyout ca.key -subj "/CN=root-ca"
-
-echo "LDAPS: Generate the LDAPS server key and certificate"
-openssl req -new -nodes -out server.csr -keyout server.key -subj "/CN=openldap"
-openssl x509 -req -in server.csr -days 365 -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt
-
-echo "LDAPS: Create a JKS truststore"
-rm -f ldap_truststore.jks
-# We import the test CA certificate
-keytool -import -v -alias testroot -file ca.crt -keystore ldap_truststore.jks -storetype JKS -storepass 'welcome123' -noprompt
-
-echo "LDAPS: Displaying truststore"
-keytool -list -keystore ldap_truststore.jks -storepass 'welcome123' -v
-cd -
-
-# Generating public and private keys for token signing
-echo "Generating public and private keys for token signing"
-mkdir conf
-cd conf
-openssl genrsa -out keypair.pem 2048
-openssl rsa -in keypair.pem -outform PEM -pubout -out public.pem 
-
-cd ..
-chown -R $(id -u $USER):$(id -g $USER) conf/
-chmod 644 conf/keypair.pem
-
-echo "Available LDAP users:"
-docker exec openldap ldapsearch -x -h localhost -b dc=confluentdemo,dc=io -D "cn=admin,dc=confluentdemo,dc=io" -w admin | grep uid:
-
-
-#####################################################
 
 cd security/ldap/certs
 
@@ -77,7 +10,9 @@ cd security/ldap/certs
 openssl req -new -x509 -keyout ca.key -days 365 -nodes -subj "/CN=root-ca" -out ca.crt
 
 # Create the LDAP's server key and certificate
-openssl req -new -nodes -out server.csr -keyout server.key -subj "/CN=openldap"
+openssl req -new -nodes -out server.csr -keyout server.pem -subj "/CN=openldap"
+# Extract the key from the pem
+openssl pkey -in server.pem -out server.key
 openssl x509 -req -in server.csr -days 365 -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt
 
 # Create a TrustStore and import the CA certificate into it
@@ -86,15 +21,14 @@ keytool -import -v -alias testroot -file ca.crt -keystore ldap_truststore.jks -s
 # Display the TrustStore
 keytool -list -keystore ldap_truststore.jks -storepass 'welcome123' -v
 
-# Create public and private keys for token signing
+# Create the private key for token signing
 openssl genrsa -out keypair.pem 2048
-openssl rsa -in keypair.pem -outform PEM -pubout -out public.pem
+# Create the public key for token signing
+openssl rsa -in server.key -outform PEM -pubout -out public.pem
 
 #####################################################
 #####################################################
 #####################################################
-
-
 
 echo "Creating role bindings for principals"
 
@@ -122,7 +56,16 @@ LICENSE_RESOURCE="Topic:_confluent-license" # starting from 6.2.3 and 7.0.2, it 
 mds_login $MDS_URL ${SUPER_USER} ${SUPER_USER_PASSWORD} || exit 1
 
 ################################### SUPERUSER ###################################
+
+confluent login --url http://localhost:8091 -vvvv
+confluent cluster describe --url http://localhost:8091
+
+set KAFKA_CLUSTER_ID GnuY4A63TwSvLFqQllTafA
+set SUPER_USER_PRINCIPAL User:superUser
+set C3_ADMIN User:controlcenterAdmin
+
 echo "Creating role bindings for Super User"
+confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role SystemAdmin --principal $SUPER_USER_PRINCIPAL && confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role SystemAdmin --principal $C3_ADMIN
 
 confluent iam rolebinding create \
     --principal $SUPER_USER_PRINCIPAL  \
@@ -518,6 +461,34 @@ wait_container_ready
 
 display_jmx_info
 
+
+
+```
+
+## Maybe we will get it right this time
+
+```shell
+log "LDAPS: Creating a Root Certificate Authority (CA)"
+docker run --quiet --rm -v $PWD:/tmp confluentinc/cp-zookeeper:7.5.1 openssl req -new -x509 -days 365 -nodes -out /tmp/ca.crt -keyout /tmp/ca.key -subj "/CN=root-ca"
+log "LDAPS: Generate the LDAPS server key and certificate"
+docker run --quiet --rm -v $PWD:/tmp confluentinc/cp-zookeeper:7.5.1 openssl req -new -nodes -out /tmp/server.csr -keyout /tmp/server.key -subj "/CN=openldap"
+docker run --quiet --rm -v $PWD:/tmp confluentinc/cp-zookeeper:7.5.1 openssl x509 -req -in /tmp/server.csr -days 365 -CA /tmp/ca.crt -CAkey /tmp/ca.key -CAcreateserial -out /tmp/server.crt
+log "LDAPS: Create a JKS truststore"
+rm -f ldap_truststore.jks
+# We import the test CA certificate
+docker run --quiet --rm -v $PWD:/tmp confluentinc/cp-zookeeper:7.5.1 keytool -import -v -alias testroot -file /tmp/ca.crt -keystore /tmp/ldap_truststore.jks -storetype JKS -storepass 'welcome123' -noprompt
+log "LDAPS: Displaying truststore"
+docker run --quiet --rm -v $PWD:/tmp confluentinc/cp-zookeeper:7.5.1 keytool -list -keystore /tmp/ldap_truststore.jks -storepass 'welcome123' -v
+cd -
+
+
+
+# Generating public and private keys for token signing
+log "Generating public and private keys for token signing"
+mkdir -p ../../environment/rbac-sasl-plain/conf
+cd ../../environment/rbac-sasl-plain/
+docker run -v $PWD:/tmp -u0 confluentinc/cp-server:7.5.1 bash -c "mkdir -p /tmp/conf; openssl genrsa -out /tmp/conf/keypair.pem 2048; openssl rsa -in /tmp/conf/keypair.pem -outform PEM -pubout -out /tmp/conf/public.pem && chown -R $(id -u $USER):$(id -g $USER) /tmp/conf && chmod 644 /tmp/conf/keypair.pem"
+cd -
 
 
 ```
