@@ -1,1 +1,0 @@
-let myTestVariable = 123
