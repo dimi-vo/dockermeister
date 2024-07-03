@@ -1,10 +1,8 @@
 # Getting Started
 
-## Start OpenLDAP
+## Create the certificates
 
 ```shell
-
-cd security/ldap/certs
 
 # Create the Certificate Authority
 openssl req -new -x509 -keyout ca.key -days 365 -nodes -subj "/CN=root-ca" -out ca.crt
@@ -58,14 +56,15 @@ mds_login $MDS_URL ${SUPER_USER} ${SUPER_USER_PASSWORD} || exit 1
 ################################### SUPERUSER ###################################
 
 confluent login --url http://localhost:8091 -vvvv
-confluent cluster describe --url http://localhost:8091
 
-set KAFKA_CLUSTER_ID GnuY4A63TwSvLFqQllTafA
+
+set KAFKA_CLUSTER_ID (confluent cluster describe --url http://localhost:8091 | grep "Confluent Resource Name" | awk -F': ' '{print $2}')
 set SUPER_USER_PRINCIPAL User:superUser
 set C3_ADMIN User:controlcenterAdmin
 
 echo "Creating role bindings for Super User"
-confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role SystemAdmin --principal $SUPER_USER_PRINCIPAL && confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role SystemAdmin --principal $C3_ADMIN
+confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role SystemAdmin --principal $SUPER_USER_PRINCIPAL && \
+confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role SystemAdmin --principal $C3_ADMIN
 
 confluent iam rolebinding create \
     --principal $SUPER_USER_PRINCIPAL  \

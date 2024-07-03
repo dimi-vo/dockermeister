@@ -35,7 +35,7 @@ services:
       LDAP_TLS_VERIFY_CLIENT: "try"
     volumes:
       - ./security/ldap/users:/container/service/slapd/assets/config/bootstrap/ldif/custom
-      - ./security2:/container/service/slapd/assets/certs
+      - ./security/ldap/certs:/container/service/slapd/assets/certs
     command: "--copy-service --loglevel debug"
 
   broker:
@@ -53,14 +53,15 @@ services:
       - "10000:10000"
     volumes:
       - ./security/jaas/kafka_server_jaas.conf:/etc/kafka/kafka_server_jaas.conf
-      - ./conf:/tmp/conf
-      - ./security2/:/tmp/certs
+      - ./security/conf:/tmp/conf
+      - ./security/ldap/certs:/tmp/certs
       # - ./client_without_interceptors.config:/etc/kafka/secrets/client_without_interceptors.config
     environment:
       CONFLUENT_TELEMETRY_ENABLED: "false"
       KAFKA_CONFLUENT_TELEMETRY_ENABLED: "false"
 
       KAFKA_BROKER_ID: 1
+
       KAFKA_JMX_HOSTNAME: localhost
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -162,11 +163,19 @@ services:
     ports:
       - "9021:9021"
     volumes:
-      - ./conf:/tmp/conf
+      - ./security/conf:/tmp/conf
     environment:
       CUB_CLASSPATH: "/usr/share/java/confluent-control-center/*:/usr/share/java/rest-utils/*:/usr/share/java/confluent-common/*:/usr/share/java/confluent-security/kafka-rest/*:/usr/share/java/kafka-rest/:/usr/share/java/cp-base-new/*"
 
       CONTROL_CENTER_BOOTSTRAP_SERVERS: broker:10091
+      CONTROL_CENTER_KAFKA_SECURITY_PROTOCOL: SASL_PLAINTEXT
+      CONTROL_CENTER_KAFKA_SECURITY_MECHANISM: OAUTHBEARER
+      CONTROL_CENTER_KAFKA_SASL_LOGIN_CALLBACK_HANDLER_CLASS: io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler
+      CONTROL_CENTER_KAFKA_SASL_JAAS_CONFIG: |
+              org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+              username="controlcenterAdmin" \
+              password="controlcenterAdmin" \
+              metadataServerUrls="http://broker:8091";
 
       CONFLUENT_METADATA_BOOTSTRAP_SERVER_URLS: http://broker:8091
       CONFLUENT_METADATA_BASIC_AUTH_USER_INFO: controlcenterAdmin:controlcenterAdmin
@@ -181,16 +190,6 @@ services:
         username="controlcenterAdmin" \
         password="controlcenterAdmin" \
         metadataServerUrls="http://broker:8091";
-
-      CONTROL_CENTER_KAFKA_MYCLUSTER_BOOTSTRAP_SERVERS: broker:10091
-      CONTROL_CENTER_KAFKA_MYCLUSTER_SECURITY_PROTOCOL: SASL_PLAINTEXT
-      CONTROL_CENTER_KAFKA_MYCLUSTER_SASL_MECHANISM: OAUTHBEARER
-      CONTROL_CENTER_KAFKA_MYCLUSTER_SASL_LOGIN_CALLBACK_HANDLER_CLASS: io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler
-      CONTROL_CENTER_KAFKA_MYCLUSTER_SASL_JAAS_CONFIG: |
-              org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
-              username="controlcenterAdmin" \
-              password="controlcenterAdmin" \
-              metadataServerUrls="http://broker:8091";
       
       CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
       CONFLUENT_MONITORING_INTERCEPTOR_TOPIC_REPLICATION: 1
