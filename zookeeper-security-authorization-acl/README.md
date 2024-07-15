@@ -13,15 +13,11 @@ kafka-acls --bootstrap-server broker:9092 \
   --operation create \
   --topic finance-topic
 
-
 kafka-console-producer --bootstrap-server broker:9092 \
   --producer.config producer-configs.properties \
   --topic finance-topic
 
-
-
 kafka-console-producer --bootstrap-server broker:9092 \
   --producer.config producer-configs-no_access.properties \
   --topic finance-topic
-
 ```

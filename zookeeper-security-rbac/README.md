@@ -40,7 +40,7 @@ set CLIENT_AVRO_PRINCIPAL "User:clientAvroCli"
 
 confluent login --url $MDS_URL -vvvv
 
-set KAFKA_CLUSTER_ID (confluent cluster describe --url $MDS_URL | grep "Confluent Resource Name" | awk -F': ' '{print $2}')
+set KAFKA_CLUSTER_ID (confluent cluster describe --url $MDS_URL | grep "Confluent Resource Name" | awk -F': ' '{print $2}') && echo $KAFKA_CLUSTER_ID
 
 echo "Creating role bindings for Super User"
 confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role SystemAdmin --principal $SUPER_USER_PRINCIPAL
@@ -50,6 +50,9 @@ confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role 
 
 echo "Create role bindings for Alice"
 confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role SystemAdmin --principal User:alice
+
+# Delete a Role Binding
+confluent iam rbac role-binding delete --role SystemAdmin --principal User:alice --kafka-cluster $KAFKA_CLUSTER_ID
 
 docker compose up control-center -d
 ```
