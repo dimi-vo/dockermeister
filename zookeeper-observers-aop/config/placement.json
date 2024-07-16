@@ -1,0 +1,14 @@
+{
+    "version": 2,
+    "replicas": [
+        {
+            "count": 2
+        }
+    ],
+    "observers": [
+        {
+            "count": 1
+        }
+    ],
+    "observerPromotionPolicy":"under-min-isr"
+}
