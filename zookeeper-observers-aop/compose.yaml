@@ -35,7 +35,7 @@ services:
       KAFKA_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker-ccc:19098
       KAFKA_CONFLUENT_MONITORING_INTERCEPTER_BOOTSTRAP_SERVERS: broker-ccc:19098
       KAFKA_JMX_PORT: 8092
-      
+
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
@@ -115,6 +115,8 @@ services:
     image: confluentinc/cp-zookeeper:7.5.1
     hostname: zookeeper-ccc
     container_name: zookeeper-ccc
+    profiles:
+      - ccc
     ports:
       - "2188:2188"
     environment:
@@ -127,6 +129,8 @@ services:
     restart: always
     hostname: broker-ccc
     container_name: broker-ccc
+    profiles:
+      - ccc
     depends_on:
       - zookeeper-ccc
     ports:
@@ -142,7 +146,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker-ccc:19098,TOKEN://broker-ccc:9098
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
 
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper-ccc:2188'
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper-ccc:2188"
       KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
       KAFKA_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker-ccc:19098
       KAFKA_JMX_PORT: 8098
@@ -156,17 +160,18 @@ services:
     hostname: control-center
     container_name: control-center
     restart: always
+    profiles:
+      - ccc
     depends_on:
       - broker-ccc
       - zookeeper-ccc
     ports:
       - "9021:9021"
     environment:
-
       CONTROL_CENTER_BOOTSTRAP_SERVERS: broker-ccc:19098
       CONTROL_CENTER_KAFKA_MRC_BOOTSTRAP_SERVERS: broker-1:9092,broker-2:9092,broker-3:9092
       CONTROL_CENTER_KAFKA_METRICS_BOOTSTRAP_SERVERS: broker-ccc:19098
-      
+
       CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
       CONFLUENT_MONITORING_INTERCEPTOR_TOPIC_REPLICATION: 1
       CONFLUENT_CONTROLCENTER_INTERNAL_TOPICS_REPLICATION: 1
