@@ -1,6 +1,6 @@
 # ZooKeeper and Broker Keystore
 keytool -keystore zookeeper.keystore.jks -alias zookeeper -keyalg RSA -validity 366 -genkey -storepass qaqaqa -keypass qaqaqa -dname "CN=zookeeper, OU=ou, O=o, L=berlin, C=de" -ext SAN=DNS:zookeeper &&
-keytool -keystore broker.keystore.jks -alias broker -keyalg RSA -validity 366 -genkey -storepass qaqaqa -keypass qaqaqa -dname "CN=broker, OU=ou, O=o, L=berlin, C=de" -ext SAN=DNS:broker
+keytool -keystore broker.keystore.jks -alias broker -keyalg RSA -validity 366 -genkey -storepass passpass -keypass passpass -dname "CN=broker, OU=ou, O=o, L=berlin, C=de" -ext SAN=DNS:broker
 
 ## Create CA
 openssl req -new -x509 -keyout ca-key -out ca-cert -days 366

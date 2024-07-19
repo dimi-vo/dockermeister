@@ -1,9 +1,8 @@
 # Getting Started
 
-## Generate the certificates
+## Generate the Certificates for the MDS to LDAP connection
 
 ```shell
-
 # Create the Certificate Authority
 openssl req -new -x509 -keyout ca.key -days 365 -nodes -subj "/CN=root-ca" -out ca.crt
 
@@ -23,10 +22,15 @@ openssl genrsa -out keypair.pem 2048
 openssl rsa -in server.key -outform PEM -pubout -out public.pem
 ```
 
+## Generate the certificates for the TLS communication
+
+```shell
+certs-create.sh
+```
+
 ## Start the services and create the bindings
 
 ```shell
-
 docker compose up zookeeper broker openldap -d
 
 echo "Creating role bindings for principals"
@@ -51,10 +55,23 @@ confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role 
 echo "Create role bindings for Alice"
 confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role SystemAdmin --principal User:alice
 
+echo "Create role bindings for client"
+confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role SystemAdmin --principal User:client
+
 # Delete a Role Binding
 confluent iam rbac role-binding delete --role SystemAdmin --principal User:alice --kafka-cluster $KAFKA_CLUSTER_ID
 
 docker compose up control-center -d
+```
+
+## Connect Client
+
+```shell
+# Consume
+kafka-console-consumer --bootstrap-server https://localhost:9093 --topic demo --from-beginning --consumer.config ../../demo-configs/client-tls.properties
+
+# Produce
+kafka-console-producer --broker-list https://localhost:9093 --topic demo --producer.config ../../demo-configs/client-tls.properties
 ```
 
 ## Work In Progress - Ignore
