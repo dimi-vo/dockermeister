@@ -1,3 +1,25 @@
+x-broker-base: &broker-base
+  image: confluentinc/cp-server:7.5.1
+  depends_on:
+    - zookeeper
+  volumes:
+    - ./config:/etc/kafka/demo
+
+x-broker-environment: &broker-environment
+  KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+  CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 2
+  KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 2
+  KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 2
+  KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+  KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+  KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,TOKEN:PLAINTEXT
+  KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+  KAFKA_METRICS_REPORTER: io.confluent.metrics.reporter.ConfluentMetricsReporter
+  KAFKA_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker-ccc:19098
+  KAFKA_CONFLUENT_MONITORING_INTERCEPTER_BOOTSTRAP_SERVERS: broker-ccc:19098
+
+
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.1
@@ -11,112 +33,51 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
 
   broker-1:
-    image: confluentinc/cp-server:7.5.1
-    restart: always
+    <<: *broker-base
     hostname: broker-1
     container_name: broker-1
-    depends_on:
-      - zookeeper
     ports:
       - "8092:8092"
       - "9092:9092"
-    volumes:
-      - ./config:/etc/kafka/demo
     environment:
+      <<: *broker-environment
       KAFKA_BROKER_ID: 1
       KAFKA_BROKER_RACK: west
-      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,TOKEN:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker-1:19092,TOKEN://broker-1:9092
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-
-      KAFKA_METRICS_REPORTER: io.confluent.metrics.reporter.ConfluentMetricsReporter
-      KAFKA_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker-ccc:19098
-      KAFKA_CONFLUENT_MONITORING_INTERCEPTER_BOOTSTRAP_SERVERS: broker-ccc:19098
       KAFKA_JMX_PORT: 8092
 
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
-      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-
   broker-2:
-    image: confluentinc/cp-server:7.5.1
-    restart: always
+    <<: *broker-base
     hostname: broker-2
     container_name: broker-2
-    depends_on:
-      - zookeeper
     ports:
       - "8093:8093"
       - "9093:9093"
-    volumes:
-      - ./config:/etc/kafka/demo
     environment:
+      <<: *broker-environment
       KAFKA_BROKER_ID: 2
       KAFKA_BROKER_RACK: west
-      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,TOKEN:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker-2:19093,TOKEN://broker-2:9093
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-
-      KAFKA_METRICS_REPORTER: io.confluent.metrics.reporter.ConfluentMetricsReporter
-      CONFLUENT_METRICS_ENABLE: "true"
-      KAFKA_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker-ccc:19098
-      KAFKA_CONFLUENT_MONITORING_INTERCEPTER_BOOTSTRAP_SERVERS: broker-ccc:19098
       KAFKA_JMX_PORT: 8093
 
-      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-
   broker-3:
-    image: confluentinc/cp-server:7.5.1
-    restart: always
+    <<: *broker-base
     hostname: broker-3
     container_name: broker-3
-    depends_on:
-      - zookeeper
     ports:
       - "8094:8094"
       - "9094:9094"
-    volumes:
-      - ./config:/etc/kafka/demo
     environment:
+      <<: *broker-environment
       KAFKA_BROKER_ID: 3
       KAFKA_BROKER_RACK: west
-      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,TOKEN:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker-3:19094,TOKEN://broker-3:9094
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-
-      KAFKA_METRICS_REPORTER: io.confluent.metrics.reporter.ConfluentMetricsReporter
-      CONFLUENT_METRICS_ENABLE: "true"
-      KAFKA_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker-ccc:19098
-      KAFKA_CONFLUENT_MONITORING_INTERCEPTER_BOOTSTRAP_SERVERS: broker-ccc:19098
       KAFKA_JMX_PORT: 8094
-
-      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
 
   zookeeper-ccc:
     image: confluentinc/cp-zookeeper:7.5.1
     hostname: zookeeper-ccc
     container_name: zookeeper-ccc
-    profiles:
-      - ccc
     ports:
       - "2188:2188"
     environment:
@@ -125,19 +86,14 @@ services:
       ZOOKEEPER_SERVERS: zookeeper-ccc:2888:3888
 
   broker-ccc:
-    image: confluentinc/cp-server:7.5.1
-    restart: always
+    <<: *broker-base
     hostname: broker-ccc
     container_name: broker-ccc
-    profiles:
-      - ccc
     depends_on:
       - zookeeper-ccc
     ports:
       - "9098:9098"
       - "8098:8098"
-    volumes:
-      - ./config:/etc/kafka/demo
     environment:
       KAFKA_BROKER_ID: 8
       KAFKA_BROKER_RACK: metrics
@@ -160,11 +116,8 @@ services:
     hostname: control-center
     container_name: control-center
     restart: always
-    profiles:
-      - ccc
     depends_on:
       - broker-ccc
-      - zookeeper-ccc
     ports:
       - "9021:9021"
     environment:

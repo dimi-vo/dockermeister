@@ -1,0 +1,32 @@
+{
+    "version": 2,
+    "replicas": [
+        {
+            "count": 2,
+            "constraints": {
+                "rack": "New York"
+            }
+        },
+        {
+            "count": 2,
+            "constraints": {
+                "rack": "Boston"
+            }
+        }
+    ],
+    "observers": [
+      {
+          "count": 1,
+          "constraints": {
+              "rack": "New York"
+          }
+      },
+      {
+          "count": 1,
+          "constraints": {
+              "rack": "Boston"
+          }
+      }
+    ],
+    "observerPromotionPolicy":"under-min-isr"
+}

@@ -2,6 +2,8 @@
 
 ## Start the cluster
 
+We have a simple cluster consisting of 1 Zookeeper node and 3 Brokers.
+
 ```shell
 docker compose up -d
 ```
@@ -11,6 +13,7 @@ docker compose up -d
 The placement contraint is defined in `config/placement.json`. It defines under which condition the Observer Promotion should take place, in this case it's when the minISR is not fulfilled.
 
 ```shell
+# Create topic
 docker compose exec broker-ccc \
 kafka-topics --create \
 --bootstrap-server broker-1:9092 \
