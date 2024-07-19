@@ -56,7 +56,6 @@ services:
       - ./security/conf:/tmp/conf
       - ./security/ldap/certs:/tmp/certs
       - ./security/ssl:/var/private/ssl
-      # - ./client_without_interceptors.config:/etc/kafka/secrets/client_without_interceptors.config
     environment:
       CONFLUENT_TELEMETRY_ENABLED: "false"
       KAFKA_CONFLUENT_TELEMETRY_ENABLED: "false"

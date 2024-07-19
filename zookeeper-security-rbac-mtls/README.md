@@ -22,10 +22,12 @@ openssl genrsa -out keypair.pem 2048
 openssl rsa -in server.key -outform PEM -pubout -out public.pem
 ```
 
-## Generate the certificates for the TLS communication
+## Generate the certificates for the mTLS between Broker and a Client
+
+Use the scripts for creating the secrets in the cp-demo repository. The command below is simply an alias for calling the certs-create.sh script.
 
 ```shell
-certs-create.sh
+certs-create
 ```
 
 ## Start the services and create the bindings
@@ -57,8 +59,10 @@ confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role 
 
 echo "Create role bindings for client"
 confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role SystemAdmin --principal User:client
+confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role DeveloperWrite --principal User:client --resource Topic:demo
 
 # Delete a Role Binding
+confluent iam rbac role-binding delete --role SystemAdmin --principal User:client --kafka-cluster $KAFKA_CLUSTER_ID
 confluent iam rbac role-binding delete --role SystemAdmin --principal User:alice --kafka-cluster $KAFKA_CLUSTER_ID
 
 docker compose up control-center -d
@@ -68,10 +72,10 @@ docker compose up control-center -d
 
 ```shell
 # Consume
-kafka-console-consumer --bootstrap-server https://localhost:9093 --topic demo --from-beginning --consumer.config ../../demo-configs/client-tls.properties
+kafka-console-consumer --bootstrap-server https://localhost:9093 --topic demo --from-beginning --consumer.config ./client-configs/client-tls.properties
 
 # Produce
-kafka-console-producer --broker-list https://localhost:9093 --topic demo --producer.config ../../demo-configs/client-tls.properties
+kafka-console-producer --broker-list https://localhost:9093 --topic demo --producer.config ./client-configs/client-tls.properties
 ```
 
 ## Work In Progress - Ignore
