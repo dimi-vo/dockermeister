@@ -1,0 +1,15 @@
+dn: cn=client,ou=users,{{ LDAP_BASE_DN }}
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: client
+sn: RandomStranger
+givenName: Stranger
+cn: client
+displayName: A Random Stranger
+uidNumber: 10099
+gidNumber: 5000
+userPassword: confluent
+gecos: client
+loginShell: /bin/bash
+homeDirectory: /home/client
