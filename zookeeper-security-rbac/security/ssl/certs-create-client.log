@@ -1,0 +1,13 @@
+Preparing to generate for client
+Generating 2.048 bit RSA key pair and self-signed certificate (SHA256withRSA) with a validity of 90 days
+	for: CN=client, OU=users, O=confluent, L=paloalto, ST=ca, C=us
+Certificate request self-signature ok
+subject=C=us, ST=ca, L=paloalto, O=confluent, OU=users, CN=client
+Certificate was added to keystore
+Certificate reply was installed in keystore
+Certificate was added to keystore
+Certificate stored in file <client.der>
+Importing keystore kafka.client.keystore.jks to client.keystore.p12...
+Entry for alias client successfully imported.
+Entry for alias snakeoil-caroot successfully imported.
+Import command completed:  2 entries successfully imported, 0 entries failed or cancelled

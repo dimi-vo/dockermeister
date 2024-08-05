@@ -3,6 +3,8 @@
 ## Generate the Certificates for the MDS to LDAP connection
 
 ```shell
+cd ./security/ldap/certs
+
 # Create the Certificate Authority
 openssl req -new -x509 -keyout ca.key -days 365 -nodes -subj "/CN=root-ca" -out ca.crt
 
@@ -16,10 +18,13 @@ keytool -import -v -alias testroot -file ca.crt -keystore ldap_truststore.jks -s
 # Display the TrustStore
 keytool -list -keystore ldap_truststore.jks -storepass 'welcome123' -v
 
+
+cd ../../conf
 # Create the private key for token signing
 openssl genrsa -out keypair.pem 2048
 # Create the public key for token signing
 openssl rsa -in server.key -outform PEM -pubout -out public.pem
+cd ../..
 ```
 
 ## Generate the certificates for the TLS communication
@@ -33,8 +38,7 @@ certs-create.sh
 ```shell
 docker compose up zookeeper broker openldap -d
 
-echo "Creating role bindings for principals"
-
+# Create role bindings for principals
 set MDS_URL http://localhost:8091
 set SUPER_USER superUser
 set SUPER_USER_PASSWORD superUser
@@ -42,6 +46,8 @@ set SUPER_USER_PRINCIPAL "User:$SUPER_USER"
 set C3_ADMIN "User:controlcenterAdmin"
 set CLIENT_AVRO_PRINCIPAL "User:clientAvroCli"
 
+# username: superUser
+# password: superUser
 confluent login --url $MDS_URL -vvvv
 
 set KAFKA_CLUSTER_ID (confluent cluster describe --url $MDS_URL | grep "Confluent Resource Name" | awk -F': ' '{print $2}') && echo $KAFKA_CLUSTER_ID
