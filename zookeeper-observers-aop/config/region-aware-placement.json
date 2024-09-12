@@ -4,13 +4,13 @@
         {
             "count": 2,
             "constraints": {
-                "rack": "New York"
+                "rack": "DC1"
             }
         },
         {
             "count": 2,
             "constraints": {
-                "rack": "Boston"
+                "rack": "DC2"
             }
         }
     ],
@@ -18,13 +18,13 @@
       {
           "count": 1,
           "constraints": {
-              "rack": "New York"
+              "rack": "DC1"
           }
       },
       {
           "count": 1,
           "constraints": {
-              "rack": "Boston"
+              "rack": "DC2"
           }
       }
     ],

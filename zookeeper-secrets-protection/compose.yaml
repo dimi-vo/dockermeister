@@ -231,7 +231,7 @@ services:
       KAFKA_JMX_HOSTNAME: localhost
       # Secrets protection settings
       CONNECT_CONFIG_STORAGE_TOPIC: $${securepass:/etc/kafka/secrets/secrets.properties:connect-standalone.properties/config.storage.topic}
-      CONFLUENT_SECURITY_MASTER_KEY: nI8mpeghfnNR8LW1gVG9h/xkW6WvdHVILpQOfpdXQL8=
+      CONFLUENT_SECURITY_MASTER_KEY: 252l7igSlMqkWHgzKSjIGiPdUuDSXSZ8LAggE8Zp2PY=
       CONNECT_CONFIG_PROVIDERS: "securepass"
       CONNECT_CONFIG_PROVIDERS_SECUREPASS_CLASS: "io.confluent.kafka.security.config.provider.SecurePassConfigProvider"
 

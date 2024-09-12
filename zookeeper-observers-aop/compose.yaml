@@ -16,8 +16,12 @@ x-broker-environment: &broker-environment
   KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,TOKEN:PLAINTEXT
   KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
   KAFKA_METRICS_REPORTER: io.confluent.metrics.reporter.ConfluentMetricsReporter
-  KAFKA_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker-ccc:19098
-  KAFKA_CONFLUENT_MONITORING_INTERCEPTER_BOOTSTRAP_SERVERS: broker-ccc:19098
+  KAFKA_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker-1:9092,broker-2:9093,broker-3:9094
+  KAFKA_CONFLUENT_MONITORING_INTERCEPTER_BOOTSTRAP_SERVERS: broker-1:9092,broker-2:9093,broker-3:9094
+  METRICS_REPORTER: io.confluent.metrics.reporter.ConfluentMetricsReporter
+  CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker-1:9092,broker-2:9093,broker-3:9094
+  CONFLUENT_MONITORING_INTERCEPTER_BOOTSTRAP_SERVERS: broker-1:9092,broker-2:9093,broker-3:9094
+  KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE: "true"
 
 
 services:
@@ -116,6 +120,8 @@ services:
     hostname: control-center
     container_name: control-center
     restart: always
+    profiles:
+      - c3
     depends_on:
       - broker-ccc
     ports:

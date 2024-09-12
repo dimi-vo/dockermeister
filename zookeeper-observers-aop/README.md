@@ -13,14 +13,14 @@ docker compose up -d
 The placement contraint is defined in `config/placement.json`. It defines under which condition the Observer Promotion should take place, in this case it's when the minISR is not fulfilled.
 
 ```shell
-# Create topic
+# Create topic with the given replica placement
 docker compose exec broker-ccc \
 kafka-topics --create \
 --bootstrap-server broker-1:9092 \
 --topic demo-topic-for-aop \
 --partitions 1 \
 --replica-placement /etc/kafka/demo/placement.json \
---config min.insync.replicas=2
+--config min.insync.replicas=1
 ```
 
 ## Review the topic's configuration and placement

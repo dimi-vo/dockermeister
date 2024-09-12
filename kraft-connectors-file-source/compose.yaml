@@ -35,6 +35,8 @@ services:
   control-center:
     image: confluentinc/cp-enterprise-control-center:7.6.1
     hostname: control-center
+    profiles:
+      - extended
     depends_on:
       - master-node
     ports:

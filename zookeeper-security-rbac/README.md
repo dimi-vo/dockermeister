@@ -60,6 +60,8 @@ confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role 
 
 echo "Create role bindings for Alice"
 confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role SystemAdmin --principal User:alice
+confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role DeveloperRead --principal User:alice --resource Topic:demo
+confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role DeveloperRead --principal User:alice --resource Group:console-consumer- --prefix 
 
 echo "Create role bindings for client"
 confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role SystemAdmin --principal User:client

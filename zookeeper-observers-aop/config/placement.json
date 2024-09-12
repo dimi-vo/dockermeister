@@ -2,13 +2,13 @@
     "version": 2,
     "replicas": [
         {
-            "count": 2
+            "count": 1
         }
     ],
     "observers": [
         {
-            "count": 1
+            "count": 2
         }
     ],
-    "observerPromotionPolicy":"under-min-isr"
+    "observerPromotionPolicy": "under-min-isr"
 }

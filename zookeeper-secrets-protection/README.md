@@ -66,9 +66,27 @@ confluent secret file encrypt \
 --local-secrets-file ./secrets/local/secrets.properties \
 --remote-secrets-file /etc/kafka/secrets/secrets.properties \
 --config "config.storage.topic"
+```
 
+Update the environment variable in compose.yaml that holds the master key password. Do this before spinning up the containers, otherwise connect will fail.
+
+```shell
 docker compose up -d connect
 ```
+
+Then check the value for the `config.storage.topic` that is defined in the properties file of connect.
+
+```shell
+docker exec connect cat /etc/kafka-connect/kafka-connect.properties | grep config.storage.topic
+```
+
+List the topics and check that the configured topic is listed with the correct, unencrypted name.
+
+```shell
+docker exec broker kafka-topics --bootstrap-server broker:9093 --list
+```
+
+`just-a-topic-name` should be in the list.
 
 ### Decrypt the encrypted configuration parameter
 

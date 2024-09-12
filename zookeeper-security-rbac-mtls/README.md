@@ -56,14 +56,21 @@ confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role 
 
 echo "Create role bindings for Alice"
 confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role SystemAdmin --principal User:alice
+confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role DeveloperRead --principal User:alice --resource Topic:demo
+confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role DeveloperRead --principal User:alice --resource Group:console-consumer- --prefix 
 
 echo "Create role bindings for client"
 confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role SystemAdmin --principal User:client
 confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role DeveloperWrite --principal User:client --resource Topic:demo
+confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role DeveloperRead --principal User:client --resource Topic:demo
+confluent iam rbac role-binding create --kafka-cluster $KAFKA_CLUSTER_ID --role DeveloperRead --principal User:client --resource Group:console-consumer- --prefix 
+
 
 # Delete a Role Binding
 confluent iam rbac role-binding delete --role SystemAdmin --principal User:client --kafka-cluster $KAFKA_CLUSTER_ID
 confluent iam rbac role-binding delete --role SystemAdmin --principal User:alice --kafka-cluster $KAFKA_CLUSTER_ID
+confluent iam rbac role-binding delete --role DeveloperRead --principal User:client --kafka-cluster $KAFKA_CLUSTER_ID 
+
 
 docker compose up control-center -d
 ```

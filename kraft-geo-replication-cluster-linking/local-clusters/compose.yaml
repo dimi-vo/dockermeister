@@ -1,7 +1,7 @@
 version: "3"
 services:
   controller-A-1:
-    image: confluentinc/cp-kafka:7.6.0
+    image: confluentinc/cp-kafka:7.6.2
     hostname: controller-A-1
     container_name: controller-A-1
     environment:
@@ -31,7 +31,7 @@ services:
       - ./jars/jmx:/opt/jmx
       
   broker-A-1:
-    image: confluentinc/cp-kafka:7.6.0
+    image: confluentinc/cp-kafka:7.6.2
     hostname: broker-A-1
     container_name: broker-A-1
     depends_on:
@@ -39,17 +39,18 @@ services:
     ports:
       - "9095:9092"
       - "9102:9101"
+      - "9093:9093"
     environment:
       KAFKA_NODE_ID: 4
       KAFKA_KRAFT_NODE_ID: 4
       KAFKA_PROCESS_ROLES: "broker"
 
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,EXTERNAL:SASL_PLAINTEXT"
 
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-A-1:9092,PLAINTEXT_HOST://localhost:29092" # Required for brokers
+      KAFKA_LISTENERS: "PLAINTEXT://:9092,PLAINTEXT_HOST://:29092,EXTERNAL://:9093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-A-1:9092,PLAINTEXT_HOST://localhost:29092,EXTERNAL://localhost:9093"
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-A-1:29092"
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
-      KAFKA_LISTENERS: "PLAINTEXT://broker-A-1:9092,PLAINTEXT_HOST://0.0.0.0:29092"
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
 
@@ -61,11 +62,21 @@ services:
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       KAFKA_JMX_PORT: 9101
       KAFKA_JMX_HOSTNAME: localhost
+      # ACLS
+      KAFKA_AUTHORIZER_CLASS_NAME: org.apache.kafka.metadata.authorizer.StandardAuthorizer
+      KAFKA_SUPER_USERS: User:admin
+
+      KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+
+      KAFKA_OPTS:
+        -Djava.security.auth.login.config=/etc/kafka/secrets/broker_jaas.conf
       EXTRA_ARGS:
         -javaagent:/opt/jmx/jmx_prometheus_javaagent-0.20.0.jar=1234:/usr/share/jmx-exporter/kafka_broker.yml
     volumes:
       - ./metrics/jmx-exporter:/usr/share/jmx-exporter
       - ./jars/jmx:/opt/jmx
+      - ./jaas:/etc/kafka/secrets/
 
   controller-B-1:
     image: confluentinc/cp-server:7.6.0
