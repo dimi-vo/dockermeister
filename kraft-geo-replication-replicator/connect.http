@@ -3,16 +3,16 @@ POST http://localhost:8083/connectors HTTP/1.1
 content-type: application/json
 
 {
-  "name": "ReplicatorSource",
+  "name": "this-is-used-as-the-consumer-group-name-2",
   "config": {
     "connector.class": "io.confluent.connect.replicator.ReplicatorSourceConnector",
     "tasks.max": "6",
-    "topic.whitelist": "demo-topic",
+    "topic.whitelist": "test",
     "src.kafka.bootstrap.servers": "broker-A-1:9092",
     "dest.kafka.bootstrap.servers": "broker-B-1:9092",
     "key.converter":"io.confluent.connect.replicator.util.ByteArrayConverter",
     "value.converter":"io.confluent.connect.replicator.util.ByteArrayConverter",
-    "topic.rename.format": "mirror_of_${topic}"
+    "topic.rename.format": "mirror2_of_${topic}"
   }
 }
 

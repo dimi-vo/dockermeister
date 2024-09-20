@@ -1,19 +1,16 @@
-version: "3"
 services:
   controller-A-1:
-    image: confluentinc/cp-server:7.6.0
+    image: confluentinc/cp-server:7.6.3
     hostname: controller-A-1
     container_name: controller-A-1
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: "controller"
-
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-A-1:29092"
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT"
-      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
       KAFKA_LISTENERS: "CONTROLLER://controller-A-1:29092"
-
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       KAFKA_DEFAULT_REPLICATION_FACTOR: 1
       KAFKA_CONFLUENT_TIER_METADATA_REPLICATION_FACTOR: 1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -24,7 +21,7 @@ services:
       KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
 
   broker-A-1:
-    image: confluentinc/cp-server:7.6.0
+    image: confluentinc/cp-server:7.6.3
     hostname: broker-A-1
     container_name: broker-A-1
     depends_on:
@@ -33,19 +30,15 @@ services:
       - "9095:9092"
       - "9104:9101"
     environment:
-      KAFKA_NODE_ID: 4
-      KAFKA_KRAFT_NODE_ID: 4
+      KAFKA_NODE_ID: 2
       KAFKA_PROCESS_ROLES: "broker"
-
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
-
       KAFKA_LISTENERS: "PLAINTEXT://broker-A-1:9092,PLAINTEXT_HOST://0.0.0.0:29092"
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-A-1:9092,PLAINTEXT_HOST://localhost:29092" # Required for brokers
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-A-1:9092,PLAINTEXT_HOST://localhost:29092"
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-A-1:29092"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
-      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
-
       KAFKA_DEFAULT_REPLICATION_FACTOR: 1
       KAFKA_CONFLUENT_TIER_METADATA_REPLICATION_FACTOR: 1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -56,19 +49,17 @@ services:
       KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
 
   controller-B-1:
-    image: confluentinc/cp-server:7.6.0
+    image: confluentinc/cp-server:7.6.3
     hostname: controller-B-1
     container_name: controller-B-1
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: "controller"
-
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-B-1:29092"
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT"
-      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       CLUSTER_ID: "FgE08qayQ9yArkwhM4xriw"
       KAFKA_LISTENERS: "CONTROLLER://controller-B-1:29092"
-
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       KAFKA_DEFAULT_REPLICATION_FACTOR: 1
       KAFKA_CONFLUENT_TIER_METADATA_REPLICATION_FACTOR: 1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -79,7 +70,7 @@ services:
       KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
 
   broker-B-1:
-    image: confluentinc/cp-server:7.6.0
+    image: confluentinc/cp-server:7.6.3
     hostname: broker-B-1
     container_name: broker-B-1
     depends_on:
@@ -88,27 +79,26 @@ services:
       - "19095:9092"
       - "19104:9101"
     environment:
-      KAFKA_NODE_ID: 4
+      KAFKA_NODE_ID: 2
       KAFKA_PROCESS_ROLES: "broker"
-
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
-
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-B-1:9092,PLAINTEXT_HOST://localhost:39092" # Required for brokers
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-B-1:9092,PLAINTEXT_HOST://localhost:39092"
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-B-1:29092"
-      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       KAFKA_LISTENERS: "PLAINTEXT://broker-B-1:9092,PLAINTEXT_HOST://0.0.0.0:39092"
-      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       CLUSTER_ID: "FgE08qayQ9yArkwhM4xriw"
-
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       KAFKA_DEFAULT_REPLICATION_FACTOR: 1
       KAFKA_CONFLUENT_TIER_METADATA_REPLICATION_FACTOR: 1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
 
   control-center:
-    image: confluentinc/cp-enterprise-control-center:latest
+    image: confluentinc/cp-enterprise-control-center:7.6.3
     hostname: control-center
     container_name: control-center-geo-repl
     depends_on:
@@ -123,7 +113,6 @@ services:
       CONTROL_CENTER_CONNECT_CONNECT-DEFAULT_CLUSTER: "kafka-connect:8083"
       CONTROL_CENTER_CONNECT_CONNECT-SIDE_CLUSTER: "kafka-connect-joker:8083"
       CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry-B:8081"
-      #      CONTROL_CENTER_KSQL_KSQLDB1_URL: "http://ksqldb-server:8088"
       CONTROL_CENTER_REPLICATION_FACTOR: 1
       CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
@@ -131,7 +120,7 @@ services:
       PORT: 9021
 
   schema-registry-A:
-    image: confluentinc/cp-schema-registry:latest
+    image: confluentinc/cp-schema-registry:7.6.3
     container_name: schema-registry-A
     hostname: schema-registry-A
     ports:
@@ -147,7 +136,7 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: 1
 
   schema-registry-B:
-    image: confluentinc/cp-schema-registry:latest
+    image: confluentinc/cp-schema-registry:7.6.3
     container_name: schema-registry-B
     hostname: schema-registry-B
     ports:
@@ -163,7 +152,7 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: 1
 
   kafka-connect:
-    image: confluentinc/cp-kafka-connect:latest
+    image: confluentinc/cp-kafka-connect:7.6.3
     container_name: kafka-connect
     hostname: kafka-connect
     depends_on:
@@ -187,7 +176,6 @@ services:
       CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
       CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
-      # CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components
       CONNECT_CONNECTOR_CLIENT_CONFIG_OVERRIDE_POLICY: All
       KAFKA_JMX_PORT: 9101
       KAFKA_JMX_HOSTNAME: localhost
