@@ -1,6 +1,22 @@
-# Setup
+# Manage resources in CP with CFK
 
-Start the cluster in docker. We don't deploly anything to k8s yet.
+## Prerequisites
+
+- Docker
+- `minikube` - [install](https://minikube.sigs.k8s.io/docs/start/?arch=%2Fmacos%2Farm64%2Fstable%2Fbinary+download)
+- `kubectl` - [install](https://kubernetes.io/docs/tasks/tools/#kubectl)
+- `helm` - [install](https://helm.sh/docs/intro/install/)
+- An http client or CLI tool. In this example [curl](https://github.com/curl/curl) is used.
+
+Helpful but not required
+- `k9s` - [install](https://k9scli.io/topics/install/)
+
+
+
+## Getting Started
+
+
+Start the cluster in docker. We don't deploy anything to k8s yet.
 
 ```shell
 docker compose up -d
@@ -120,7 +136,7 @@ kubectl create secret generic credential \
 # For the REST Admin API check this -> https://github.com/confluentinc/cp-demo/blob/7.7.0-post/docker-compose.yml
 
 
-
+curl --user superUser:superUser http://localhost:8092/kafka/v3/clusters/ -v
 
 # Delete a Role Binding
 confluent iam rbac role-binding delete --role SystemAdmin --principal User:alice --kafka-cluster $KAFKA_CLUSTER_ID

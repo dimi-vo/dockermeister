@@ -121,8 +121,7 @@ services:
         username="admin" \
         password="admin-secret" \
         user_admin="admin-secret" \
-        user_mds="mds-secret" \
-        user_superUser="superUser";
+        user_mds="mds-secret";
 
       KAFKA_ZOOKEEPER_SET_ACL: "true"
 
@@ -187,7 +186,6 @@ services:
       # Loggers
       # KAFKA_LOG4J_LOGGERS: 'kafka.authorizer.logger=INFO,io.confluent.security.auth.provider.ldap.LdapGroupManager=TRACE'
 
-      # TODO: Review every line below this. You have to understand the flow
       # EmbeddedKafkaRest: Kafka Client Configuration
       KAFKA_KAFKA_REST_BOOTSTRAP_SERVERS: SASL_PLAINTEXT://broker:10091
       KAFKA_KAFKA_REST_CLIENT_SECURITY_PROTOCOL: SASL_PLAINTEXT

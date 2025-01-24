@@ -1,0 +1,9 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaRestClass
+metadata:
+  name: default
+  namespace: confluent
+spec:
+  kafkaRest:
+    endpoint: http://192.168.65.254:9092
+    kafkaClusterID: MkU3OEVBNTcwNTJENDM2Qk
