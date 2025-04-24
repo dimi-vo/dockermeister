@@ -15,3 +15,8 @@ scratch.**
 **/*.pem
 **/security/*
 zookeeper/kafka-log/*
+
+kraft-connectors-ibm-mq-source-w-monitoring/mq-container/
+
+**/*.jar
+**/.flask/
