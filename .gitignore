@@ -13,6 +13,8 @@ scratch.**
 .DS_Store
 
 **/*.pem
+**/*.pub
+ansible@localhost
 **/security/*
 zookeeper/kafka-log/*
 
@@ -20,3 +22,4 @@ kraft-connectors-ibm-mq-source-w-monitoring/mq-container/
 
 **/*.jar
 **/.flask/
+**/flask/
