@@ -24,4 +24,4 @@ kraft-connectors-ibm-mq-source-w-monitoring/mq-container/
 **/.flask/
 **/flask/**
 
-**/__pycache/
+**/__pycache/**
