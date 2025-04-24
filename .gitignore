@@ -1,8 +1,8 @@
 .idea
 
-*/secrets/**
+**/secrets/**
 
-*/mq-container/*
+**/mq-container/**
 
 scratch.**
 
@@ -15,11 +15,13 @@ scratch.**
 **/*.pem
 **/*.pub
 ansible@localhost
-**/security/*
-zookeeper/kafka-log/*
+**/security/**
+zookeeper/kafka-log/**
 
 kraft-connectors-ibm-mq-source-w-monitoring/mq-container/
 
 **/*.jar
 **/.flask/
-**/flask/
+**/flask/**
+
+**/__pycache/
