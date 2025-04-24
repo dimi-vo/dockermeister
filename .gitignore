@@ -1,0 +1,17 @@
+.idea
+
+*/secrets/**
+
+*/mq-container/*
+
+scratch.**
+
+**/*venv*/
+
+.vscode/
+
+.DS_Store
+
+**/*.pem
+**/security/*
+zookeeper/kafka-log/*
