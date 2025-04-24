@@ -1,0 +1,16 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaTopic
+metadata:
+  name: test-topic-a
+  namespace: confluent
+spec:
+  replicas: 1
+  partitionCount: 1
+  kafkaRest:
+    endpoint: http://192.168.65.254:8092
+    authentication:
+      type: basic
+      basic:
+        secretRef: credential
+  configs:
+    cleanup.policy: "compact"

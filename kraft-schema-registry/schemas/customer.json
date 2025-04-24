@@ -1,0 +1,11 @@
+{
+  "schemaType": "AVRO",
+  "schema": "{\"type\":\"record\",\"namespace\":\"com.example\",\"name\":\"Customer\",\"fields\":[{\"name\":\"firstName\",\"type\":\"string\"},{\"name\":\"lastName\",\"type\":\"string\"},{\"name\":\"address\",\"type\":\"com.example.Address\"}]}",
+  "references": [
+    {
+      "name": "com.example.Address",
+      "subject": "address",
+      "version": 1
+    }
+  ]
+}

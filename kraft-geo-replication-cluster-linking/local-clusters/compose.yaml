@@ -1,0 +1,192 @@
+version: "3"
+services:
+  controller-A-1:
+    image: confluentinc/cp-kafka:7.6.2
+    hostname: controller-A-1
+    container_name: controller-A-1
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: "controller"
+
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-A-1:29092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+      KAFKA_LISTENERS: "CONTROLLER://controller-A-1:29092"
+
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_TIER_METADATA_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      DEFAULT_REPLICATION_FACTOR: 1
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      EXTRA_ARGS:
+        -javaagent:/opt/jmx/jmx_prometheus_javaagent-0.20.0.jar=1234:/usr/share/jmx-exporter/kafka_broker.yml
+    ports:
+      - '9101:9101'
+    volumes:
+      - ./metrics/jmx-exporter:/usr/share/jmx-exporter
+      - ./jars/jmx:/opt/jmx
+      
+  broker-A-1:
+    image: confluentinc/cp-kafka:7.6.2
+    hostname: broker-A-1
+    container_name: broker-A-1
+    depends_on:
+      - controller-A-1
+    ports:
+      - "9095:9092"
+      - "9102:9101"
+      - "9093:9093"
+    environment:
+      KAFKA_NODE_ID: 4
+      KAFKA_KRAFT_NODE_ID: 4
+      KAFKA_PROCESS_ROLES: "broker"
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,EXTERNAL:SASL_PLAINTEXT"
+
+      KAFKA_LISTENERS: "PLAINTEXT://:9092,PLAINTEXT_HOST://:29092,EXTERNAL://:9093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-A-1:9092,PLAINTEXT_HOST://localhost:29092,EXTERNAL://localhost:9093"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-A-1:29092"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_TIER_METADATA_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      DEFAULT_REPLICATION_FACTOR: 1
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      # ACLS
+      KAFKA_AUTHORIZER_CLASS_NAME: org.apache.kafka.metadata.authorizer.StandardAuthorizer
+      KAFKA_SUPER_USERS: User:admin
+
+      KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+
+      KAFKA_OPTS:
+        -Djava.security.auth.login.config=/etc/kafka/secrets/broker_jaas.conf
+      EXTRA_ARGS:
+        -javaagent:/opt/jmx/jmx_prometheus_javaagent-0.20.0.jar=1234:/usr/share/jmx-exporter/kafka_broker.yml
+    volumes:
+      - ./metrics/jmx-exporter:/usr/share/jmx-exporter
+      - ./jars/jmx:/opt/jmx
+      - ./jaas:/etc/kafka/secrets/
+
+  controller-B-1:
+    image: confluentinc/cp-server:7.6.0
+    hostname: controller-B-1
+    container_name: controller-B-1
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: "controller"
+
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-B-1:29092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      CLUSTER_ID: "FgE08qayQ9yArkwhM4xriw"
+      KAFKA_LISTENERS: "CONTROLLER://controller-B-1:29092"
+
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_TIER_METADATA_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      DEFAULT_REPLICATION_FACTOR: 1
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      EXTRA_ARGS:
+        -javaagent:/opt/jmx/jmx_prometheus_javaagent-0.20.0.jar=1234:/usr/share/jmx-exporter/kafka_broker.yml
+    ports:
+      - '9201:9101'
+    volumes:
+      - ./metrics/jmx-exporter:/usr/share/jmx-exporter
+      - ./jars/jmx:/opt/jmx
+
+  broker-B-1:
+    image: confluentinc/cp-server:7.6.0
+    hostname: broker-B-1
+    container_name: broker-B-1
+    depends_on:
+      - controller-B-1
+    ports:
+      - "19095:9092"
+      - '9202:9101'
+    environment:
+      KAFKA_NODE_ID: 4
+      KAFKA_PROCESS_ROLES: "broker"
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-B-1:9092,PLAINTEXT_HOST://localhost:39092"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-B-1:29092"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_LISTENERS: "PLAINTEXT://broker-B-1:9092,PLAINTEXT_HOST://0.0.0.0:39092"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      CLUSTER_ID: "FgE08qayQ9yArkwhM4xriw"
+
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_TIER_METADATA_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+      CONFLUENT_CLUSTER_LINK_ENABLE: "true"
+      CONFLUENT_CLUSTER_LINK_METADATA_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      EXTRA_ARGS:
+        -javaagent:/opt/jmx/jmx_prometheus_javaagent-0.20.0.jar=1234:/usr/share/jmx-exporter/kafka_broker.yml
+    volumes:
+      - ./metrics/jmx-exporter:/usr/share/jmx-exporter
+      - ./jars/jmx:/opt/jmx
+      - ./config:/home/user
+
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:latest
+    hostname: control-center
+    container_name: control-center-cl
+    depends_on:
+      - broker-A-1
+      - broker-B-1
+    ports:
+      - "9021:9021"
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker-A-1:9092'
+      CONTROL_CENTER_KAFKA_DESTINATION-CLUSTER_BOOTSTRAP_SERVERS: 'broker-B-1:9092'
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      PORT: 9021
+
+  prometheus:
+    depends_on:
+      - controller-A-1
+      - broker-A-1
+      - controller-B-1
+      - broker-B-1
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./metrics/prometheus:/etc/prometheus
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    depends_on:
+      - prometheus
+    ports:
+      - '3000:3000'
+    environment:
+      - "GF_SECURITY_ADMIN_USER=admin"
+      - "GF_SECURITY_ADMIN_PASSWORD=password"
+      - "GF_USERS_ALLOW_SIGN_UP=false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning

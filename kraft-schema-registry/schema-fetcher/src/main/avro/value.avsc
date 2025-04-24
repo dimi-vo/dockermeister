@@ -1,0 +1,1 @@
+{"type":"record","name":"recordValue","namespace":"com.dimi.test","fields":[{"name":"string_field","type":"string"},{"name":"number_field","type":"int"}]}

@@ -1,0 +1,25 @@
+{
+    "schemaType": "AVRO",
+    "schema": "{\"type\":\"record\",\"namespace\":\"com.example\",\"name\":\"Address\",\"fields\":[{\"name\":\"street\",\"type\":\"string\"},{\"name\":\"street2\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"city\",\"type\":\"string\"},{\"name\":\"state\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"postalCode\",\"type\":\"string\"},{\"name\":\"countryCode\",\"type\":\"string\"}]}"
+}
+
+
+{
+    "type": "record",
+    "namespace": "com.example",
+    "name": "Customer",
+    "fields": [
+        {
+            "name": "firstName",
+            "type": "string"
+        },
+        {
+            "name": "lastName",
+            "type": "string"
+        },
+        {
+            "name": "address",
+            "type": "com.example.Address"
+        }
+    ]
+}

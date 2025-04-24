@@ -1,0 +1,1 @@
+{"schema":"{\"type\":\"record\",\"namespace\":\"com.dimi.test\",\"name\":\"recordValue\",\"fields\":[{\"type\":\"string\",\"name\":\"string_field\"},{\"type\":\"int\",\"name\":\"number_field\"}]}"}

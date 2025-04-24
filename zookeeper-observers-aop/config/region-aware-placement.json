@@ -1,0 +1,32 @@
+{
+    "version": 2,
+    "replicas": [
+        {
+            "count": 2,
+            "constraints": {
+                "rack": "DC1"
+            }
+        },
+        {
+            "count": 2,
+            "constraints": {
+                "rack": "DC2"
+            }
+        }
+    ],
+    "observers": [
+      {
+          "count": 1,
+          "constraints": {
+              "rack": "DC1"
+          }
+      },
+      {
+          "count": 1,
+          "constraints": {
+              "rack": "DC2"
+          }
+      }
+    ],
+    "observerPromotionPolicy":"under-min-isr"
+}

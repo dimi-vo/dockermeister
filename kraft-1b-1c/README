@@ -1,0 +1,41 @@
+# Setup
+
+Start the cluster in docker. We don't deploly anything to k8s yet.
+
+```shell
+docker compose up -d
+```
+
+Create the k8s cluster that will be used for CfK. Practically, just the operator is going to live there.
+
+```shell
+
+docker network create -d bridge test-net --subnet=172.25.0.0/24 --gateway=172.25.0.1
+
+
+
+# set home directory
+export TUTORIAL_HOME="https://raw.githubusercontent.com/confluentinc/confluent-kubernetes-examples/master/quickstart-deploy/kraft-quickstart"
+
+# create the namespace to use
+kubectl create namespace confluent
+# Set the created namespace for the k8s context
+kubectl config set-context --current --namespace confluent
+# Add the CfK Heml repository
+helm repo add confluentinc https://packages.confluent.io/helm
+helm repo update
+# Install CfK
+helm upgrade --install confluent-operator confluentinc/confluent-for-kubernetes
+# Check that the CfK pod comes up and is running
+kubectl get pods
+
+
+
+kubectl apply -f admin-rest-class-cr.yaml
+
+kubectl apply -f kafka-topic.yaml
+```
+
+
+
+

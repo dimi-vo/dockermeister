@@ -1,0 +1,147 @@
+# How to deploy Replicator as a connector
+
+For simplicity we have two clusters in docker.
+
+Cluster A: Source cluster
+
+Cluster B: Destination cluster
+
+This examples relies on KRaft, but you may use Zookeeper instead. This does not affect the deployment process of the Replicator as a connector.
+
+## Start all services
+
+```shell
+docker compose up -d
+```
+
+Now you can go to <http://localhost:9021> to open Control Center.
+
+You should be able to see the two clusters.
+
+![control-center-view](image.png)
+
+### Ensure that all services are up and running
+
+```shell
+docker ps --format 'table {{.Names}}\t|\t{{.Status}}\t|\t{{.Ports}}'
+
+# Output
+NAMES                     |         STATUS                    |         PORTS
+control-center-geo-repl   |         Up 5 minutes              |         0.0.0.0:9021->9021/tcp
+schema-registry-A         |         Up 16 minutes             |         0.0.0.0:8081->8081/tcp
+kafka-connect             |         Up 16 minutes (healthy)   |         0.0.0.0:8083->8083/tcp, 9092/tcp
+schema-registry-B         |         Up 16 minutes             |         0.0.0.0:8082->8081/tcp
+broker-B-1                |         Up 16 minutes             |         0.0.0.0:19095->9092/tcp, 0.0.0.0:19104->9101/tcp
+broker-A-1                |         Up 16 minutes             |         0.0.0.0:9095->9092/tcp, 0.0.0.0:9104->9101/tcp
+controller-B-1            |         Up 16 minutes             |         9092/tcp
+controller-A-1            |         Up 16 minutes             |         9092/tcp
+```
+
+## Create a topic in the source cluster
+
+First we need to create a topic in the source cluster that we will replicate using Replicator.
+
+Use the CLI or C3.
+
+```shell
+docker exec -it broker-A-1 /bin/bash
+
+kafka-console-producer --bootstrap-server localhost:29092 --topic demo
+>foo
+>bar
+>foobar
+>barfoo
+```
+
+## Deploy Replicator as a connector
+
+Exit the container and from your terminal do the following.
+
+### Create the Connector
+
+```shell
+curl -X POST 'http://localhost:8083/connectors' \
+-H "Content-Type: application/json" \
+-d '{
+  "name": "this-is-used-as-the-consumer-group-name",
+  "config": {
+    "connector.class": "io.confluent.connect.replicator.ReplicatorSourceConnector",
+    "tasks.max": "6",
+    "topic.whitelist": "demo",
+    "src.kafka.bootstrap.servers": "broker-A-1:9092",
+    "dest.kafka.bootstrap.servers": "broker-B-1:9092",
+    "key.converter": "io.confluent.connect.replicator.util.ByteArrayConverter",
+    "value.converter": "io.confluent.connect.replicator.util.ByteArrayConverter",
+    "topic.rename.format": "mirror_of_${topic}"
+  }
+}'
+```
+
+### Get a list with all connectors
+
+```shell
+curl -X GET 'http://localhost:8083/connectors?expand=info&expand=status' | jq '.'
+```
+
+Expected output
+
+```shell
+{
+  "this-is-used-as-the-consumer-group-name-2": {
+    "info": {
+      "name": "this-is-used-as-the-consumer-group-name-2",
+      "config": {
+        "connector.class": "io.confluent.connect.replicator.ReplicatorSourceConnector",
+        "dest.kafka.bootstrap.servers": "broker-B-1:9092",
+        "tasks.max": "6",
+        "topic.rename.format": "mirror2_of_${topic}",
+        "name": "this-is-used-as-the-consumer-group-name-2",
+        "value.converter": "io.confluent.connect.replicator.util.ByteArrayConverter",
+        "topic.whitelist": "demo",
+        "src.kafka.bootstrap.servers": "broker-A-1:9092",
+        "key.converter": "io.confluent.connect.replicator.util.ByteArrayConverter"
+      },
+      "tasks": [
+        {
+          "connector": "this-is-used-as-the-consumer-group-name-2",
+          "task": 0
+        }
+      ],
+      "type": "source"
+    },
+    "status": {
+      "name": "this-is-used-as-the-consumer-group-name-2",
+      "connector": {
+        "state": "RUNNING",
+        "worker_id": "kafka-connect:8083"
+      },
+      "tasks": [
+        {
+          "id": 0,
+          "state": "RUNNING",
+          "worker_id": "kafka-connect:8083"
+        }
+      ],
+      "type": "source"
+    }
+  }
+}
+```
+
+## Verify replication
+
+Go to C3 and verify that the messages are replicated to the destination cluster.
+
+Or use the CLI to do so.
+
+```shell
+docker exec -it broker-B-1 /bin/bash
+
+kafka-console-consumer --bootstrap-server localhost:39092 --topic mirror_of_demo --from-beginning
+
+# Output
+foo
+bar
+foobar
+barfoo
+```

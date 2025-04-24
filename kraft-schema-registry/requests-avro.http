@@ -1,0 +1,38 @@
+
+@host = http://localhost:8081
+
+# @name registerAdress
+POST {{host}}/subjects/address/versions HTTP/1.1
+Accept: application/vnd.schemaregistry.v1+json, application/vnd.schemaregistry+json, application/json
+Content-Type: application/vnd.schemaregistry.v1+json
+Authorization: Basic fred:letmein
+
+< ./schemas/address.json
+
+###
+
+# @name registerCustomer
+POST {{host}}/subjects/customer/versions HTTP/1.1
+Accept: application/vnd.schemaregistry.v1+json, application/vnd.schemaregistry+json, application/json
+Content-Type: application/vnd.schemaregistry.v1+json
+Authorization: Basic fred:letmein
+
+< ./schemas/customer.json
+
+
+###
+GET {{host}}/subjects
+Authorization: Basic fred:letmein
+###
+GET {{host}}/schemas
+Authorization: Basic fred:letmein
+###
+GET {{host}}/schemas/ids/1/versions
+###
+GET {{host}}/subjects/value/versions/1
+###
+GET {{host}}/subjects/key/versions/1
+###
+GET {{host}}/subjects/value/versions/
+###
+GET {{host}}/subjects/key/versions/

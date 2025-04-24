@@ -1,0 +1,35 @@
+###
+
+POST http://localhost:8083/connectors HTTP/1.1
+content-type: application/json
+
+{
+  "name": "CsvSpoolDir",
+  "config": {
+    "tasks.max": "1",
+    "connector.class": "com.github.jcustenborder.kafka.connect.spooldir.SpoolDirCsvSourceConnector",
+    "input.path": "/tmp/",
+    "input.file.pattern": "test.csv",
+    "error.path": "/tmp/",
+    "finished.path": "/tmp/",
+    "halt.on.error": "false",
+    "topic": "testing-topic",
+    "csv.first.row.as.header": "true",
+    "schema.generation.enabled": "true",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.storage.StringConverter"
+  }
+}
+
+
+###
+GET http://localhost:8083/connectors 
+
+###
+GET http://localhost:8083/connectors/ibmmq-source/status
+
+###
+POST http://localhost:8083/connectors/ibmmq-source-B/restart
+
+###
+DELETE http://localhost:8083/connectors/CsvSpoolDir
